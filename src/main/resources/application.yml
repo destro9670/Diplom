@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost/db_test
+    username: test
+    password: test
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
