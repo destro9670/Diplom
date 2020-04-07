@@ -1,17 +1,14 @@
-package ua.gabz.dm.threads.connector;
+package ua.gabz.dm;
 
 import org.jboss.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import sun.tools.jar.CommandLine;
-import ua.gabz.dm.threads.client.ClientThread;
-import ua.gabz.dm.threads.client.ClientThreadImpl;
+import ua.gabz.dm.clientThread.ClientThread;
+import ua.gabz.dm.clientThread.IClientThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ConnectionListener implements Listener {
-
+public class ConnectionListener implements IConnectionListener {
     private static final Logger logger = Logger.getLogger(ConnectionListener.class);
 
     @Override
@@ -30,13 +27,11 @@ public class ConnectionListener implements Listener {
 
     @Override
     public void createClientThread(Socket socket) {
-        ClientThread clientThread = new ClientThreadImpl();
-        try {
-            clientThread.initializate(socket);
-        } catch (IOException e) {
+        try( IClientThread clientThread = new ClientThread(socket)) {
+            clientThread.run();
+        } catch (Exception e) {
             logger.error(e);
-            return;
         }
-        clientThread.run();
     }
+
 }

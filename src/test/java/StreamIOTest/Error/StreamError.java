@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ua.gabz.dm.ServerStarter;
-import ua.gabz.dm.threads.connector.ConnectionListener;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

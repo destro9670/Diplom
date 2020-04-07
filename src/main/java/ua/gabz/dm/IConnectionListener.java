@@ -1,12 +1,9 @@
-package ua.gabz.dm.threads.connector;
+package ua.gabz.dm;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/**
- * Created by destr on 15.03.2020.
- */
-public interface Listener {
+public interface IConnectionListener {
 
     void listen(ServerSocket ss);
 

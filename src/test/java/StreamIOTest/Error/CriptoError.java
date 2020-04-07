@@ -1,6 +1,5 @@
 package StreamIOTest.Error;
 
-import StreamIOTest.OK.DeviseInfo;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ua.gabz.dm.ServerStarter;
-import ua.gabz.dm.criptography.Cripography;
-import ua.gabz.dm.criptography.Strumock;
+import newServer.criptography.Cripography;
+import newServer.criptography.Strumock;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
