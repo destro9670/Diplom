@@ -1,4 +1,4 @@
-package ua.gabz.dm.messages;
+package messages;
 
 public interface IMessage {
 

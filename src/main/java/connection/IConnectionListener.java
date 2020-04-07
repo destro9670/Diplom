@@ -1,4 +1,4 @@
-package ua.gabz.dm;
+package connection;
 
 import java.net.ServerSocket;
 import java.net.Socket;

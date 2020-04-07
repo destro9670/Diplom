@@ -1,15 +1,14 @@
-package ua.gabz.dm.clientThread;
+package client;
 
-import ua.gabz.dm.messages.IMessage;
-
-import java.io.IOException;
-import java.net.Socket;
+import messages.IMessage;
 
 public interface IClientThread extends Runnable, AutoCloseable{
 
     void sendMessage(IMessage msg);
 
     IMessage takeData();
+
+    void closeThread();
 
 
 }

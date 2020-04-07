@@ -1,5 +1,4 @@
-package ua.gabz.dm;
-
+import connection.ConnectionListener;
 import org.jboss.logging.Logger;
 
 
@@ -17,7 +16,6 @@ public class ServerStarter {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-
     }
 
 

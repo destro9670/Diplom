@@ -1,8 +1,8 @@
-package ua.gabz.dm;
+package connection;
 
 import org.jboss.logging.Logger;
-import ua.gabz.dm.clientThread.ClientThread;
-import ua.gabz.dm.clientThread.IClientThread;
+import client.ClientThread;
+import client.IClientThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,7 +18,7 @@ public class ConnectionListener implements IConnectionListener {
                 createClientThread(ss.accept());
                 logger.info("New Connection");
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
 
