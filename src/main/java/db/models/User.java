@@ -1,5 +1,7 @@
 package db.models;
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -8,30 +10,39 @@ import java.util.Set;
 public class User  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @NotNull
     private long id;
 
     @Column(name = "name")
+    @NotNull
     private String name;
 
     @Column(name = "surname")
+    @NotNull
     private String surname;
 
     @Column(name = "nick")
+    @NotNull
     private String nick;
 
     @Column(name = "login")
+    @NotNull
     private String login;
 
     @Column(name = "password")
+    @NotNull
     private String password;
 
     @Column(name = "key_date")
+    @NotNull
     private String keyDate;
 
     @Column(name = "active")
+    @NotNull
     private boolean active;
 
     @Column(name = "last_seen")
+    @NotNull
     private String lastSeen;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
@@ -40,8 +51,25 @@ public class User  {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
     private Set<Message> takedMessages;
 
-    ///TODO(1) create constructor for add new users into database
     public User() {
+    }
+
+    public User(@NotNull String name,
+                @NotNull String surname,
+                @NotNull String nick,
+                @NotNull String login,
+                @NotNull String password,
+                @NotNull String keyDate,
+                @NotNull boolean active,
+                @NotNull String lastSeen) {
+        this.name = name;
+        this.surname = surname;
+        this.nick = nick;
+        this.login = login;
+        this.password = password;
+        this.keyDate = keyDate;
+        this.active = active;
+        this.lastSeen = lastSeen;
     }
 
     public boolean isActive() {
