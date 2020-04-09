@@ -24,6 +24,12 @@ public class ErrorMessage implements Message {
             if (type == ErrorType.AUTH) {
                 message.put("body","Auth");
             }
+            if (type == ErrorType.STREAM) {
+                message.put("body","Stream");
+            }
+            if (type == ErrorType.SERVER) {
+                message.put("body","Server");
+            }
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
