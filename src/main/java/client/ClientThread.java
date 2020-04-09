@@ -1,12 +1,12 @@
 package client;
 
 import messages.ErrorMessage;
-import messages.IMessage;
 import messages.Message;
+import messages.ClientMessage;
 import messages.enums.ErrorType;
+import services.AuthServiceImpl;
 import services.AuthService;
-import services.IAuthService;
-import services.Stream;
+import services.StreamServiceImpl;
 import org.jboss.logging.Logger;
 
 import java.io.DataInputStream;
@@ -14,22 +14,22 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientThread implements IClientThread {
+public class ClientThread extends Thread implements AutoCloseable {
 
     private static final Logger logger = Logger.getLogger(ClientThread.class);
 
     private final Socket socket;
     private final DataOutputStream dos;
     private final DataInputStream dis;
-    private IAuthService authService;
-    private Stream stream;
+    private AuthService authService;
+    private StreamServiceImpl stream;
 
     public ClientThread(Socket socket) throws IOException {
         this.socket = socket;
         this.dos = new DataOutputStream(socket.getOutputStream());
         this.dis = new DataInputStream(socket.getInputStream());
-        authService = new AuthService(this);
-        stream = new Stream(this);
+        authService = new AuthServiceImpl(this);
+        stream = new StreamServiceImpl(this);
     }
 
 
@@ -67,9 +67,7 @@ public class ClientThread implements IClientThread {
         }
     }
 
-
-    @Override
-    public void sendMessage(IMessage msg) {
+    public void sendMessage(Message msg) {
 
         try {
             dos.writeUTF(msg.getTextMessage());
@@ -82,11 +80,10 @@ public class ClientThread implements IClientThread {
 
     }
 
-    @Override
-    public IMessage takeData() {
-        IMessage msg = null;
+    public Message takeData() {
+        Message msg = null;
         try {
-            msg = new Message(dis.readUTF());
+            msg = new ClientMessage(dis.readUTF());
         } catch (IOException e) {
             logger.error(e.getMessage());
 

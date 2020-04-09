@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration
+        PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/test_db</property>
+        <property name="connection.username">postgres</property>
+        <property name="connection.password">qwerqwer</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.ProgressDialect</property>
+        <property name="hibernate.jdbc.server_time_zone">UTC</property>
+        <property name="hibernate.characterEncoding">UTF-8</property>
+        <property name="show_sql">true</property>
+
+        <mapping class="db.models.User"/>
+        <mapping class="db.models.Message"/>
+
+    </session-factory>
+</hibernate-configuration>

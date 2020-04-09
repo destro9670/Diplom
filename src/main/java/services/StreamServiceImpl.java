@@ -1,10 +1,10 @@
 package services;
 
 
-import client.IClientThread;
+import client.ClientThread;
 import criptography.CriptographyAlghorytm;
 import messages.ErrorMessage;
-import messages.Message;
+import messages.ClientMessage;
 import messages.enums.ErrorType;
 import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
@@ -15,60 +15,60 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Stream implements IStream {
+public class StreamServiceImpl implements StreamService {
 
-    private static final Logger logger = Logger.getLogger(Stream.class);
+    private static final Logger logger = Logger.getLogger(StreamServiceImpl.class);
 
     private static final String OPEN_RESPONSE =
             "{" +
-                    "\"type\":\"StreamMessage\"" +
-                    "\"subType\":\"Response\"" +
+                    "\"type\":\"StreamMessage\"," +
+                    "\"subType\":\"Response\"," +
                     "\"body\":\"Accepted\"" +
                     "}";
 
     private static final String OPEN_REQUEST =
             "{" +
-                    "\"type\":\"StreamMessage\"" +
-                    "\"subType\":\"Response\"" +
-                    "\"body\":\"Accepted\"" +
+                    "\"type\":\"StreamMessage\"," +
+                    "\"subType\":\"Response\"," +
+                    "\"body\":\"Open\"" +
                     "}";
 
-    private static final String CRIPTO_TEST_MESSAGE_HEADER=
+    private static final String CRIPTO_TEST_MESSAGE_HEADER =
             "{" +
-                    "\"type\":\"CriptoStreamMessage\"" +
+                    "\"type\":\"CriptoStreamMessage\"," +
                     "\"subType\":\"Request\"" +
                     "}";
 
-    private final IClientThread client;
-    private final CriptoServise criptoServise;
+    private final ClientThread client;
+    private final CriptoServiseImpl criptoServise;
 
-    public Stream(IClientThread client) {
+    public StreamServiceImpl(ClientThread client) {
         this.client = client;
-        criptoServise = new CriptoServise(CriptographyAlghorytm.STRUMOCK);
+        criptoServise = new CriptoServiseImpl(CriptographyAlghorytm.STRUMOCK);
 
     }
 
     @Override
     public void open() {
         if (isValidOpenRequestMessage())
-            client.sendMessage(new Message(OPEN_RESPONSE));
+            client.sendMessage(new ClientMessage(OPEN_RESPONSE));
         else
             throw new IllegalArgumentException();
 
-        if(isValidCriptoStream()){
+        if (isValidCriptoStream()) {
             openCriptoStream();
-        }else
+        } else
             throw new IllegalArgumentException();
 
     }
 
     private boolean isValidOpenRequestMessage() {
         try {
-            String request = client.takeData().getTextMessage();
+            JSONObject request = new JSONObject(client.takeData().getTextMessage());
+            JSONObject etalon = new JSONObject(OPEN_REQUEST);
+            return request.toString().equals(etalon.toString());
 
-            return request.equals(OPEN_REQUEST);
-
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | JSONException e) {
             logger.error(e.getMessage());
             client.sendMessage(new ErrorMessage(ErrorType.STREAM));
             client.closeThread();
@@ -77,14 +77,14 @@ public class Stream implements IStream {
         return false;
     }
 
-    private boolean isValidCriptoStream(){
+    private boolean isValidCriptoStream() {
 
         try {
             JSONObject testMessage = new JSONObject(CRIPTO_TEST_MESSAGE_HEADER);
             String randomText = generateRandomText();
-            testMessage.put("body",criptoServise.encrypt(randomText));
+            testMessage.put("body", criptoServise.encrypt(randomText));
 
-            client.sendMessage(new Message(testMessage));
+            client.sendMessage(new ClientMessage(testMessage));
             return isValidTestCriptoResponse(new JSONObject(client.takeData().getTextMessage()), randomText);
         } catch (JSONException e) {
             logger.error(e.getMessage());
@@ -96,7 +96,7 @@ public class Stream implements IStream {
 
     }
 
-    private String generateRandomText(){
+    private String generateRandomText() {
         String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  //generate random text
                 + "0123456789"
                 + "abcdefghijklmnopqrstuvxyz";
@@ -119,7 +119,7 @@ public class Stream implements IStream {
         return sb.toString();
     }
 
-    private boolean isValidTestCriptoResponse(JSONObject testMessage, String sendedRandomText){
+    private boolean isValidTestCriptoResponse(JSONObject testMessage, String sendedRandomText) {
         try {
             return testMessage.getString("type").equals("CriptoStreamMessage") &&
                     testMessage.getString("subType").equals("Response") &&
@@ -133,7 +133,7 @@ public class Stream implements IStream {
         }
     }
 
-    private String getSHA256(String text){
+    private String getSHA256(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(
@@ -147,8 +147,15 @@ public class Stream implements IStream {
         }
     }
 
-    private void openCriptoStream(){
-        if(!OPEN_REQUEST.equals(criptoServise.decrypt(client.takeData()).getTextMessage())) throw new IllegalArgumentException();
-        client.sendMessage(criptoServise.encrypt(OPEN_REQUEST));
+    private void openCriptoStream() {
+        try {
+            if (!new JSONObject(OPEN_REQUEST).toString().equals(criptoServise.decrypt(client.takeData()).getTextMessage()))
+                throw new IllegalArgumentException();
+            client.sendMessage(new ClientMessage(criptoServise.encrypt(OPEN_RESPONSE)));
+
+        } catch (JSONException e) {
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException();
+        }
     }
 }

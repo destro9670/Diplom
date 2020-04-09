@@ -2,16 +2,14 @@ package connection;
 
 import org.jboss.logging.Logger;
 import client.ClientThread;
-import client.IClientThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ConnectionListener implements IConnectionListener {
+public class ConnectionListener {
     private static final Logger logger = Logger.getLogger(ConnectionListener.class);
 
-    @Override
     public void listen(ServerSocket ss) {
         while (true){
             try {
@@ -25,10 +23,10 @@ public class ConnectionListener implements IConnectionListener {
 
     }
 
-    @Override
-    public void createClientThread(Socket socket) {
-        try( IClientThread clientThread = new ClientThread(socket)) {
-            clientThread.run();
+
+    private void createClientThread(Socket socket) {
+        try( ClientThread clientThread = new ClientThread(socket)) {
+            clientThread.start();
         } catch (Exception e) {
             logger.error(e);
         }

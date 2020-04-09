@@ -1,29 +1,14 @@
 package services;
 
-import criptography.CriptographyAlghorytm;
-import messages.IMessage;
+import messages.Message;
 
-public class CriptoServise implements ICriptoServise {
+public interface CriptoServise {
 
-    private final CriptographyAlghorytm alghorytm;
+    Message encrypt(Message message);
 
-    CriptoServise(CriptographyAlghorytm alghorytm) {
-        this.alghorytm = alghorytm;
-    }
+    String encrypt(String message);
 
-    @Override
-    public IMessage encrypt(String message) {
-        if(alghorytm == CriptographyAlghorytm.STRUMOCK)
-            return encrypt(message);
+    Message decrypt(Message message);
 
-        return null;
-    }
-
-    @Override
-    public IMessage decrypt(IMessage message) {
-        if(alghorytm == CriptographyAlghorytm.STRUMOCK)
-            return decrypt(message);
-
-        return null;
-    }
+    String decrypt(String message);
 }

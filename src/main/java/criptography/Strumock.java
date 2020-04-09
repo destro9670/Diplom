@@ -1,16 +1,29 @@
 package criptography;
 
-import messages.IMessage;
+import messages.Message;
 
-public class Strumock  {
+public class Strumock implements Criptography  {
 
     ///TODO(1) write Strumock
 
-    public IMessage encript(IMessage message) {
+    @Override
+    public String encript(String message) {
         return message;
     }
 
-    public IMessage decript(IMessage message) {
+    @Override
+    public Message encript(Message message) {
+        return message;
+    }
+
+    @Override
+    public String decript(String message) {
+        return message;
+    }
+
+
+    @Override
+    public Message decript(Message message) {
         return message;
     }
 }

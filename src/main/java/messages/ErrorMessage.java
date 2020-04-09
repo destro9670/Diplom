@@ -5,24 +5,24 @@ import org.jboss.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ErrorMessage implements IMessage {
+public class ErrorMessage implements Message {
 
     private static final Logger logger = Logger.getLogger(ErrorMessage.class);
 
     private static final String ERROR_HEADER =
                     "{" +
-                    "\"type\":\"ErrorMessage\"" +
+                    "\"type\":\"ErrorMessage\"," +
                     "\"subType\":\"Response\"" +
                     "}";
 
-    private JSONObject errorMessage;
+    private JSONObject message;
 
     public ErrorMessage(ErrorType type) {
         try {
-            errorMessage = new JSONObject(ERROR_HEADER);
+            message = new JSONObject(ERROR_HEADER);
 
             if (type == ErrorType.AUTH) {
-                errorMessage.put("body","Auth");
+                message.put("body","Auth");
             }
 
         } catch (JSONException e) {
@@ -32,6 +32,6 @@ public class ErrorMessage implements IMessage {
 
     @Override
     public String getTextMessage() {
-        return errorMessage.toString();
+        return message.toString();
     }
 }

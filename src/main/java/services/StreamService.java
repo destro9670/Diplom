@@ -1,6 +1,6 @@
 package services;
 
-public interface IStream {
+public interface StreamService {
 
    void open();
 }
