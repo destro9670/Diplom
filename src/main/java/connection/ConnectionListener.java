@@ -25,8 +25,9 @@ public class ConnectionListener {
 
 
     private void createClientThread(Socket socket) {
-        try( ClientThread clientThread = new ClientThread(socket)) {
-            clientThread.start();
+        try {
+            ClientThread clientThread = new ClientThread(socket);
+            new Thread(clientThread).start();
         } catch (Exception e) {
             logger.error(e);
         }

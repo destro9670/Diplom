@@ -14,7 +14,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientThread extends Thread implements AutoCloseable {
+public class ClientThread implements Runnable {
 
     private static final Logger logger = Logger.getLogger(ClientThread.class);
 
@@ -51,8 +51,7 @@ public class ClientThread extends Thread implements AutoCloseable {
         }
     }
 
-    @Override
-    public void close() throws Exception {
+    private void close() throws Exception {
         dos.close();
         dis.close();
         socket.close();
@@ -86,13 +85,8 @@ public class ClientThread extends Thread implements AutoCloseable {
             msg = new ClientMessage(dis.readUTF());
         } catch (IOException e) {
             logger.error(e.getMessage());
-
-            try {
-                close();
-
-            } catch (Exception e1) {
-                logger.error(e1.getMessage());
-            }
+            sendMessage(new ErrorMessage(ErrorType.STREAM));
+            closeThread();
         }
         return msg;
     }
