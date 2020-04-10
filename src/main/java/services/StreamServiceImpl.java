@@ -53,12 +53,12 @@ public class StreamServiceImpl implements StreamService {
         if (isValidOpenRequestMessage())
             client.sendMessage(new ClientMessage(OPEN_RESPONSE));
         else
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong Open Request");
 
         if (isValidCriptoStream()) {
             openCriptoStream();
         } else
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong Cripto Response");
 
     }
 
@@ -88,7 +88,7 @@ public class StreamServiceImpl implements StreamService {
             return isValidTestCriptoResponse(new JSONObject(client.takeData().getTextMessage()), randomText);
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.SERVER));
+            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
             client.closeThread();
             return false;
         }
@@ -127,7 +127,7 @@ public class StreamServiceImpl implements StreamService {
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.SERVER));
+            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
             client.closeThread();
             return false;
         }
@@ -141,7 +141,7 @@ public class StreamServiceImpl implements StreamService {
             return new String(Hex.encode(hash));
         } catch (NoSuchAlgorithmException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.SERVER));
+            client.sendMessage(new ErrorMessage(ErrorType.CRIPTO));
             client.closeThread();
             return null;
         }
@@ -150,12 +150,12 @@ public class StreamServiceImpl implements StreamService {
     private void openCriptoStream() {
         try {
             if (!new JSONObject(OPEN_REQUEST).toString().equals(criptoServise.decrypt(client.takeData()).getTextMessage()))
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Open Request");
             client.sendMessage(new ClientMessage(criptoServise.encrypt(OPEN_RESPONSE)));
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong Json");
         }
     }
 }

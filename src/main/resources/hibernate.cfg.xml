@@ -12,6 +12,9 @@
         <property name="hibernate.characterEncoding">UTF-8</property>
         <property name="show_sql">true</property>
 
+        <property name="hibernate.hbm2ddl.auto">create</property>
+
+
         <mapping class="db.models.User"/>
         <mapping class="db.models.Message"/>
 

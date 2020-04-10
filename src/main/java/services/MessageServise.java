@@ -24,23 +24,23 @@ public class MessageServise {
         messageDAO.save(message);
     }
 
-    void update(Message message){
+    public void update(Message message){
         messageDAO.save(message);
     }
 
-    void delete(Message message){
+    public void delete(Message message){
         messageDAO.delete(message);
     }
 
-    List<Message> findAllMessageBySender(User user){
+    public List<Message> findAllMessageBySender(User user){
         return messageDAO.findAllMessageBySender(user);
     }
 
-    List<Message> findAllMessageByTaker(User user){
+    public List<Message> findAllMessageByTaker(User user){
         return messageDAO.findAllMessageByTaker(user);
     }
 
-    List<Message> findUnsendedMessageTaker(User user){
+    public List<Message> findUnsendedMessageTaker(User user){
         return messageDAO.findUnsendedMessageTaker(user);
     }
 }

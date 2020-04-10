@@ -11,7 +11,7 @@ public class UserServise {
 
     private final UserDAO userDAO;
 
-    UserServise() {
+    public UserServise() {
         this.userDAO = new UserDAOImpl();
     }
 

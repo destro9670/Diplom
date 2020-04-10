@@ -44,25 +44,27 @@ public class AuthServiceImpl implements AuthService {
 
             if (!(authResponse.getString("type").equals("Auth") &&
                     authResponse.getString("subType").equals("Response")))
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Json");
 
             String[] authData = authResponse.getString("body").split("_");
 
             if (authData.length != 2)
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Auth");
 
             List<User> users = userServise.findUserByLogin(authData[0]);
 
             if (users.isEmpty())
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Login or Password");
 
-            if (users.size() != 1)
-                throw new IllegalArgumentException();
+            if (users.size() != 1) {
+                logger.error("multiple users with the same usernames");
+                throw new IllegalArgumentException("Wrong Auth");
+            }
 
             User user = users.get(0);
 
             if (!confirmPassword(user, authData[1]))
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Login or Password");
 
             openStream();
 
@@ -71,8 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.SERVER));
+            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
             client.closeThread();
         }
 
@@ -91,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
             return new String(Hex.encode(hash));
         } catch (NoSuchAlgorithmException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.SERVER));
+            client.sendMessage(new ErrorMessage(ErrorType.AUTH_PROCESS));
             client.closeThread();
             return "";
         }
@@ -116,11 +117,11 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             if (!request.equals(new JSONObject(openRequest).toString())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Wrong Open Request");
             }
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong Json");
         }
 
         client.sendMessage(new ClientMessage(criptoServise.encrypt(openResponse)));

@@ -21,14 +21,17 @@ public class ErrorMessage implements Message {
         try {
             message = new JSONObject(ERROR_HEADER);
 
-            if (type == ErrorType.AUTH) {
-                message.put("body","Auth");
+            if (type == ErrorType.AUTH_PROCESS) {
+                message.put("body","AuthProcess");
             }
             if (type == ErrorType.STREAM) {
                 message.put("body","Stream");
             }
-            if (type == ErrorType.SERVER) {
-                message.put("body","Server");
+            if (type == ErrorType.AUTH_DATA) {
+                message.put("body","AuthData");
+            }
+            if (type == ErrorType.CRIPTO) {
+                message.put("body","Cripto");
             }
 
         } catch (JSONException e) {

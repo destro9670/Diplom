@@ -51,9 +51,9 @@ public class MessageDAOImpl implements MessageDAO {
     public List<Message> findAllMessageBySender(User user) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
-        String hql = "FROM messages WHERE user_from_id = :userId";
+        String hql = "FROM Message WHERE sender = :user";
         Query query = session.createQuery(hql,Message.class);
-        query.setParameter("userId", user.getId());
+        query.setParameter("user", user);
         List<Message> messages = query.list();
         transaction.commit();
         session.close();
@@ -64,9 +64,9 @@ public class MessageDAOImpl implements MessageDAO {
     public List<Message> findAllMessageByTaker(User user) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
-        String hql = "FROM messages WHERE user_to_id = :userId";
+        String hql = "FROM Message WHERE taker = :user";
         Query query = session.createQuery(hql,Message.class);
-        query.setParameter("userId", user.getId());
+        query.setParameter("user", user);
         List<Message> messages = query.list();
         transaction.commit();
         session.close();
@@ -77,9 +77,9 @@ public class MessageDAOImpl implements MessageDAO {
     public List<Message> findUnsendedMessageTaker(User user) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
-        String hql = "FROM messages WHERE user_to_id = :userId AND send_status = false ";
+        String hql = "FROM Message WHERE taker = :user AND sendStatus = false ";
         Query query = session.createQuery(hql,Message.class);
-        query.setParameter("userId", user.getId());
+        query.setParameter("user", user);
         List<Message> messages = query.list();
         transaction.commit();
         session.close();

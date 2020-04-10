@@ -26,16 +26,18 @@
 
     <dependencies>
 
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.4.4.Final</version>
+            <version>5.3.16.Final</version>
         </dependency>
+
 
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
+            <version>9.1-901.jdbc3</version>
         </dependency>
 
         <dependency>

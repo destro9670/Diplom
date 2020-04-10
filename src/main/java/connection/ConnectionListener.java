@@ -25,11 +25,15 @@ public class ConnectionListener {
 
 
     private void createClientThread(Socket socket) {
+        ClientThread clientThread = null;
         try {
-            ClientThread clientThread = new ClientThread(socket);
+            clientThread = new ClientThread(socket);
             new Thread(clientThread).start();
         } catch (Exception e) {
             logger.error(e);
+
+            if(clientThread != null)
+                clientThread.closeThread();
         }
     }
 

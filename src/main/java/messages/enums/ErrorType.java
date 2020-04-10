@@ -1,5 +1,5 @@
 package messages.enums;
 
 public enum ErrorType {
-    AUTH, STREAM, SERVER
+    AUTH_PROCESS, STREAM,  CRIPTO, AUTH_DATA
 }

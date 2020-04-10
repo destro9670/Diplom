@@ -1,7 +1,5 @@
 package db.models;
 
-import com.sun.istack.NotNull;
-
 import javax.persistence.*;
 
 @Entity
@@ -9,44 +7,37 @@ import javax.persistence.*;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_from_id")
-    @NotNull
+    @JoinColumn(name = "user_from_id",nullable = false)
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "user_to_id")
-    @NotNull
+    @JoinColumn(name = "user_to_id", nullable = false)
     private User taker;
 
-    @Column(name = "body")
-    @NotNull
+    @Column(name = "body", nullable = false)
     private String body;
 
-    @Column(name = "read_status")
-    @NotNull
+    @Column(name = "read_status", nullable = false)
     private boolean readStatus;
 
-    @Column(name = "send_status")
-    @NotNull
+    @Column(name = "send_status", nullable = false)
     private boolean sendStatus;
 
-    @Column(name = "send_date")
-    @NotNull
+    @Column(name = "send_date", nullable = false)
     private String sendDate;
 
     public Message() {
     }
 
-    public Message(@NotNull User sender,
-                   @NotNull User taker,
-                   @NotNull String body,
-                   @NotNull boolean readStatus,
-                   @NotNull boolean sendStatus,
-                   @NotNull String sendDate) {
+    public Message(User sender,
+                   User taker,
+                   String body,
+                   boolean readStatus,
+                   boolean sendStatus,
+                   String sendDate) {
 
         this.sender = sender;
         this.taker = taker;
@@ -110,5 +101,17 @@ public class Message {
 
     public void setSendDate(String sendDate) {
         this.sendDate = sendDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                ", sender=" + sender.getNick() +
+                ", taker=" + taker.getNick() +
+                ", body='" + body + '\'' +
+                ", readStatus=" + readStatus +
+                ", sendStatus=" + sendStatus +
+                ", sendDate='" + sendDate + '\'' +
+                '}';
     }
 }

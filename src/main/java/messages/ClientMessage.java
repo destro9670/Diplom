@@ -31,7 +31,7 @@ public class ClientMessage implements Message {
             this.jsonMessage = new JSONObject( jsonMessage);
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong Json");
         }
     }
 

@@ -1,7 +1,5 @@
 package db.models;
 
-import com.sun.istack.NotNull;
-
 import javax.persistence.*;
 import java.util.Set;
 
@@ -10,39 +8,30 @@ import java.util.Set;
 public class User  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
     private long id;
 
-    @Column(name = "name")
-    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "surname")
-    @NotNull
+    @Column(name = "surname", nullable = false)
     private String surname;
 
-    @Column(name = "nick")
-    @NotNull
+    @Column(name = "nick", nullable = false)
     private String nick;
 
-    @Column(name = "login")
-    @NotNull
+    @Column(name = "login", nullable = false)
     private String login;
 
-    @Column(name = "password")
-    @NotNull
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "key_date")
-    @NotNull
+    @Column(name = "key_date", nullable = false)
     private String keyDate;
 
-    @Column(name = "active")
-    @NotNull
+    @Column(name = "active", nullable = false)
     private boolean active;
 
-    @Column(name = "last_seen")
-    @NotNull
+    @Column(name = "last_seen", nullable = false)
     private String lastSeen;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
@@ -54,14 +43,14 @@ public class User  {
     public User() {
     }
 
-    public User(@NotNull String name,
-                @NotNull String surname,
-                @NotNull String nick,
-                @NotNull String login,
-                @NotNull String password,
-                @NotNull String keyDate,
-                @NotNull boolean active,
-                @NotNull String lastSeen) {
+    public User(String name,
+                String surname,
+                String nick,
+                String login,
+                String password,
+                String keyDate,
+                boolean active,
+                String lastSeen) {
         this.name = name;
         this.surname = surname;
         this.nick = nick;
@@ -112,7 +101,7 @@ public class User  {
         this.surname = surname;
     }
 
-    public String getNick() {
+    String getNick() {
         return nick;
     }
 
@@ -159,6 +148,20 @@ public class User  {
 
     public void setTakedMessages(Set<Message> takedMessages) {
         this.takedMessages = takedMessages;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", nick='" + nick + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", keyDate='" + keyDate + '\'' +
+                ", active=" + active +
+                ", lastSeen='" + lastSeen + '\'' +
+                '}';
     }
 }
 

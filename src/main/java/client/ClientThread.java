@@ -46,7 +46,22 @@ public class ClientThread implements Runnable {
 
         }catch (IllegalArgumentException e){
             logger.error(e.getMessage());
-            sendMessage(new ErrorMessage(ErrorType.AUTH));
+            if(e.getMessage().equals("Wrong Open Request"))
+                sendMessage(new ErrorMessage(ErrorType.STREAM));
+
+            if(e.getMessage().equals("Wrong Json"))
+                sendMessage(new ErrorMessage(ErrorType.STREAM));
+
+            if(e.getMessage().equals("Wrong Cripto Response"))
+                sendMessage(new ErrorMessage(ErrorType.CRIPTO));
+
+            if(e.getMessage().equals("Wrong Auth"))
+                sendMessage(new ErrorMessage(ErrorType.AUTH_PROCESS));
+
+            if(e.getMessage().equals("Wrong Login or Password"))
+                sendMessage(new ErrorMessage(ErrorType.AUTH_DATA));
+
+
             closeThread();
         }
     }
