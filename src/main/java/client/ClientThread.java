@@ -1,9 +1,8 @@
 package client;
 
-import messages.ErrorMessage;
+import db.models.User;
 import messages.Message;
 import messages.ClientMessage;
-import messages.enums.ErrorType;
 import services.сonnection.AuthService;
 import services.сonnection.AuthServiceImpl;
 import services.сonnection.StreamServiceImpl;
@@ -23,6 +22,7 @@ public class ClientThread implements Runnable {
     private final DataInputStream dis;
     private AuthService authService;
     private StreamServiceImpl stream;
+    private User user;
 
     public ClientThread(Socket socket) throws IOException {
         this.socket = socket;
@@ -40,48 +40,37 @@ public class ClientThread implements Runnable {
 
         try {
             stream.open();
-            authService.toAuthorize();
+            user = authService.toAuthorize();
 
+            while (Thread.currentThread().isInterrupted()){
+                takeData();
+            }
 
 
         }catch (IllegalArgumentException e){
             logger.error(e.getMessage());
-            if(e.getMessage().equals("Wrong Open Request"))
-                sendMessage(new ErrorMessage(ErrorType.STREAM));
-
-            if(e.getMessage().equals("Wrong Json"))
-                sendMessage(new ErrorMessage(ErrorType.STREAM));
-
-            if(e.getMessage().equals("Wrong Cripto Response"))
-                sendMessage(new ErrorMessage(ErrorType.CRIPTO));
-
-            if(e.getMessage().equals("Wrong Auth"))
-                sendMessage(new ErrorMessage(ErrorType.AUTH_PROCESS));
-
-            if(e.getMessage().equals("Wrong Login or Password"))
-                sendMessage(new ErrorMessage(ErrorType.AUTH_DATA));
-
-
             closeThread();
         }
     }
 
-    private void close() throws Exception {
-        dos.close();
-        dis.close();
-        socket.close();
-    }
+    private void close() {
 
-
-    public void closeThread(){
         try {
-            close();
+            dos.close();
+            dis.close();
+            socket.close();
+            Thread.currentThread().interrupt();
         } catch (Exception e1) {
             logger.error(e1.getMessage());
         }
     }
 
-    public void sendMessage(Message msg) {
+
+    public void closeThread(){
+            close();
+    }
+
+    public synchronized void sendMessage(Message msg) {
 
         try {
             dos.writeUTF(msg.getTextMessage());
@@ -100,10 +89,10 @@ public class ClientThread implements Runnable {
             msg = new ClientMessage(dis.readUTF());
         } catch (IOException e) {
             logger.error(e.getMessage());
-            sendMessage(new ErrorMessage(ErrorType.STREAM));
             closeThread();
         }
         return msg;
     }
+
 }
 

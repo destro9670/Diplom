@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import java.util.List;
 
 
-public class Database extends Assert {
+public class T1Database extends Assert {
 
     private static UserServise userServise;
     private static RoomServise roomServise;
@@ -139,7 +139,7 @@ public class Database extends Assert {
 
         for(Message message: messages){
             assertEquals("user1",message.getSender().getNick());
-            assertEquals(false,message.isSendStatus());
+            assertFalse(message.isSendStatus());
         }
 
     }

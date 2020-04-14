@@ -5,7 +5,8 @@ import client.ClientThread;
 import criptography.CriptographyAlghorytm;
 import messages.ErrorMessage;
 import messages.StreamMessage;
-import messages.enums.ErrorType;
+import messages.enums.MessageType;
+import messages.enums.SubType;
 import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
 import org.json.JSONException;
@@ -22,23 +23,24 @@ public class StreamServiceImpl implements StreamService {
 
     private static final String OPEN_RESPONSE =
             "{" +
-                    "\"type\":\"StreamMessage\"," +
-                    "\"subType\":\"Response\"," +
-                    "\"body\":\"Accepted\"" +
+                    "\"Type\":\"Response\"," +
+                    "\"SubType\":\"Connect\"," +
+                    "\"MessageType\":\"Stream\"," +
+                    "\"Status\":\"OK\"" +
                     "}";
 
     private static final String OPEN_REQUEST =
             "{" +
-                    "\"type\":\"StreamMessage\"," +
-                    "\"subType\":\"Response\"," +
-                    "\"body\":\"Open\"" +
+                    "\"Type\":\"Request\"," +
+                    "\"SubType\":\"Connect\"," +
+                    "\"MessageType\":\"Stream\"" +
                     "}";
 
     private static final String CRIPTO_TEST_MESSAGE_HEADER =
             "{" +
-                    "\"type\":\"CriptoStreamMessage\"," +
-                    "\"subType\":\"Request\"" +
-                    "}";
+                    "\"Type\":\"Request\"," +
+                    "\"SubType\":\"Get\"," +
+                    "\"MessageType\":\"Stream\"}";
 
     private final ClientThread client;
     private final CriptoServiseImpl criptoServise;
@@ -53,25 +55,28 @@ public class StreamServiceImpl implements StreamService {
     public void open() {
         if (isValidOpenRequestMessage())
             client.sendMessage(new StreamMessage(OPEN_RESPONSE));
-        else
+        else {
+            client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad Open Request"));
             throw new IllegalArgumentException("Wrong Open Request");
-
+        }
         if (isValidCriptoStream()) {
             openCriptoStream();
-        } else
+        } else {
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.STREAM,"Bad decription"));
             throw new IllegalArgumentException("Wrong Cripto Response");
-
+        }
     }
 
     private boolean isValidOpenRequestMessage() {
         try {
             JSONObject request = new JSONObject(client.takeData().getTextMessage());
             JSONObject etalon = new JSONObject(OPEN_REQUEST);
+
             return request.toString().equals(etalon.toString());
 
         } catch (IllegalArgumentException | JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
+            client.sendMessage(new ErrorMessage(SubType.CONNECT, MessageType.STREAM,"Bad JSON"));
             client.closeThread();
         }
 
@@ -81,15 +86,19 @@ public class StreamServiceImpl implements StreamService {
     private boolean isValidCriptoStream() {
 
         try {
-            JSONObject testMessage = new JSONObject(CRIPTO_TEST_MESSAGE_HEADER);
+            JSONObject request = new JSONObject(CRIPTO_TEST_MESSAGE_HEADER);
             String randomText = generateRandomText();
-            testMessage.put("body", criptoServise.encrypt(randomText));
+            request.put("Body", new JSONObject().put("Msg",criptoServise.encrypt(randomText)));
 
-            client.sendMessage(new StreamMessage(testMessage));
-            return isValidTestCriptoResponse(new JSONObject(client.takeData().getTextMessage()), randomText);
+            client.sendMessage(new StreamMessage(request));
+
+            JSONObject response = new JSONObject(client.takeData().getTextMessage());
+
+
+            return isValidTestCriptoResponse(response, randomText);
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.STREAM,"Bad JSON"));
             client.closeThread();
             return false;
         }
@@ -122,13 +131,14 @@ public class StreamServiceImpl implements StreamService {
 
     private boolean isValidTestCriptoResponse(JSONObject testMessage, String sendedRandomText) {
         try {
-            return testMessage.getString("type").equals("CriptoStreamMessage") &&
-                    testMessage.getString("subType").equals("Response") &&
-                    testMessage.getString("body").equals(getSHA256(sendedRandomText));
+            return testMessage.getString("Type").equals("Response") &&
+                    testMessage.getString("SubType").equals("Get") &&
+                    testMessage.getJSONObject("Body")
+                            .getString("Msg").equals(getSHA256(sendedRandomText));
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.STREAM,"Bad JSON"));
             client.closeThread();
             return false;
         }
@@ -142,7 +152,7 @@ public class StreamServiceImpl implements StreamService {
             return new String(Hex.encode(hash));
         } catch (NoSuchAlgorithmException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.CRIPTO));
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.STREAM,"Bad JSON"));
             client.closeThread();
             return null;
         }
@@ -150,12 +160,16 @@ public class StreamServiceImpl implements StreamService {
 
     private void openCriptoStream() {
         try {
-            if (!new JSONObject(OPEN_REQUEST).toString().equals(criptoServise.decrypt(client.takeData()).getTextMessage()))
+            if (!new JSONObject(OPEN_REQUEST).toString().equals(criptoServise.decrypt(client.takeData()).getTextMessage())){
+                client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Wrong Open Request"));
                 throw new IllegalArgumentException("Wrong Open Request");
+        }
             client.sendMessage(new StreamMessage(criptoServise.encrypt(OPEN_RESPONSE)));
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.STREAM,"Bad JSON"));
+            client.closeThread();
             throw new IllegalArgumentException("Wrong Json");
         }
     }

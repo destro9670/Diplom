@@ -3,10 +3,7 @@ import criptography.CriptographyAlghorytm;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import services.сripto.CriptoServise;
 import services.сripto.CriptoServiseImpl;
 
@@ -18,26 +15,28 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Auth extends Assert {
+public class T2Auth extends Assert {
 
-    private static final String OPEN_RESPONSE =
+    private static final String OPEN_REQUEST=
             "{" +
-                    "\"type\":\"StreamMessage\"," +
-                    "\"subType\":\"Response\"," +
-                    "\"body\":\"Accepted\"" +
+                    "\"Type\":\"Request\"," +
+                    "\"SubType\":\"Connect\"," +
+                    "\"MessageType\":\"Stream\"" +
                     "}";
 
-    private static final String OPEN_REQUEST =
+    private static final String OPEN_RESPONSE  =
             "{" +
-                    "\"type\":\"StreamMessage\"," +
-                    "\"subType\":\"Response\"," +
-                    "\"body\":\"Open\"" +
+                    "\"Type\":\"Response\"," +
+                    "\"SubType\":\"Connect\"," +
+                    "\"MessageType\":\"Stream\"," +
+                    "\"Status\":\"OK\"" +
                     "}";
 
-    private static final String AUTH_REQUEST =
+    private static final String AUTH_RESPONSE =
             "{" +
-                    "\"type\":\"Auth\"," +
-                    "\"subType\":\"Request\"" +
+                    "\"Type\":\"Response\"," +
+                    "\"SubType\":\"Get\"," +
+                    "\"MessageType\":\"Auth\"" +
                     "}";
 
     static class test extends Thread {
@@ -60,10 +59,20 @@ public class Auth extends Assert {
     private CriptoServise criptoServise ;
 
 
-    @Before
-    public void start() {
+    @BeforeClass
+    public static void start() {
         t.start();
+        try {
+            Thread.sleep(15*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+
+    }
+
+    @Test
+    public void openStream() {
         try {
             s = new Socket("127.0.0.1", 5222);
 
@@ -75,10 +84,6 @@ public class Auth extends Assert {
             e.printStackTrace();
         }
 
-    }
-
-    @Test
-    public void openStream() {
         try {
 
             dos.writeUTF(OPEN_REQUEST);
@@ -96,16 +101,19 @@ public class Auth extends Assert {
         try {
             JSONObject request = new JSONObject(dis.readUTF());
 
-            assertEquals( "CriptoStreamMessage", request.getString("type"));
-            assertEquals("Request", request.getString("subType"));
+            assertEquals( "Request", request.getString("Type"));
+            assertEquals("Get", request.getString("SubType"));
+            assertEquals("Stream", request.getString("MessageType"));
 
-            String randomText = request.getString("body");
+            String randomText = request.getJSONObject("Body").getString("Msg");
 
             JSONObject response = new JSONObject();
 
-            response.put("type","CriptoStreamMessage");
-            response.put("subType","Response");
-            response.put("body",getSHA256(criptoServise.decrypt(randomText)));
+            response.put("Type","Response");
+            response.put("SubType","Get");
+            response.put("MessageType","Stream");
+            response.put("Body",new JSONObject()
+                    .put("Msg",getSHA256(criptoServise.decrypt(randomText))));
 
             dos.writeUTF(response.toString());
 
@@ -136,15 +144,23 @@ public class Auth extends Assert {
         openCriptoStream();
 
         try {
-            String request = criptoServise.decrypt(dis.readUTF());
+            /*String request = criptoServise.decrypt(dis.readUTF());
             assertEquals(request,new JSONObject(AUTH_REQUEST).toString());
+            */
+            JSONObject request = new JSONObject(AUTH_RESPONSE);
+            request.put("Body",new JSONObject()
+                    .put("Login","user1")
+                    .put("Password", getSHA256("user1")));
 
-            JSONObject response = new JSONObject();
-            response.put("type","Auth");
-            response.put("subType","Response");
-            response.put("body","user1" +"_"+ getSHA256("user1"));
+            dos.writeUTF(criptoServise.encrypt(request.toString()));
 
-            dos.writeUTF(criptoServise.encrypt(response.toString()));
+            JSONObject response = new JSONObject(criptoServise.decrypt(dis.readUTF()));
+
+            assertEquals("Response",response.getString("Type"));
+            assertEquals("Get",response.getString("SubType"));
+            assertEquals("Auth",response.getString("MessageType"));
+            assertEquals("OK",response.getString("Status"));
+            assertEquals("user1",response.getJSONObject("Body").getString("Nick"));
 
             openCriptedAuthStream();
 
@@ -179,8 +195,8 @@ public class Auth extends Assert {
 
 
 
-    @After
-    public void stop() {
+    @AfterClass
+    public static void stop() {
         try {
             t.interrupt();
         } catch (Throwable throwable) {

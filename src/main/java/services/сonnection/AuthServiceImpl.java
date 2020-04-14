@@ -5,7 +5,8 @@ import criptography.CriptographyAlghorytm;
 import db.models.User;
 import messages.AuthMessage;
 import messages.ErrorMessage;
-import messages.enums.ErrorType;
+import messages.enums.MessageType;
+import messages.enums.SubType;
 import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
 import org.json.JSONException;
@@ -24,10 +25,12 @@ public class AuthServiceImpl implements AuthService {
 
     private static final Logger logger = Logger.getLogger(AuthServiceImpl.class);
 
-    private static final String AUTH_REQUEST =
+    private static final String AUTH_RESPONSE=
             "{" +
-                    "\"type\":\"Auth\"," +
-                    "\"subType\":\"Request\"" +
+                    "\"Type\":\"Response\"," +
+                    "\"SubType\":\"Get\"," +
+                    "\"MessageType\":\"Auth\"," +
+                    "\"Status\":\"OK\"" +
                     "}";
 
     private final ClientThread client;
@@ -42,33 +45,47 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User toAuthorize() {
-        client.sendMessage(new AuthMessage(criptoServise.encrypt(AUTH_REQUEST)));
         try {
-            JSONObject authResponse = new JSONObject(criptoServise.decrypt(client.takeData()).getTextMessage());
+            JSONObject authRequest = new JSONObject(client.takeData().getTextMessage());
 
-            if (!(authResponse.getString("type").equals("Auth") &&
-                    authResponse.getString("subType").equals("Response")))
+            if (!(authRequest.getString("Type").equals("Response") &&
+                    authRequest.getString("SubType").equals("Get") &&
+                    authRequest.getString("MessageType").equals("Auth"))) {
+
+                client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad JSON"));
+
                 throw new IllegalArgumentException("Wrong Json");
+            }
 
-            String[] authData = authResponse.getString("body").split("_");
+            JSONObject authData = authRequest.getJSONObject("Body");
 
-            if (authData.length != 2)
-                throw new IllegalArgumentException("Wrong Auth");
+            String login = authData.getString("Login");
+            String password= authData.getString("Password");
 
-            List<User> users = userServise.findUserByLogin(authData[0]);
+            List<User> users = userServise.findUserByLogin(login);
 
-            if (users.isEmpty())
+            if (users.isEmpty()) {
+                client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad Login or Password"));
+
                 throw new IllegalArgumentException("Wrong Login or Password");
-
+            }
             if (users.size() != 1) {
                 logger.error("multiple users with the same usernames");
+                client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad Auth"));
                 throw new IllegalArgumentException("Wrong Auth");
             }
 
             User user = users.get(0);
 
-            if (!confirmPassword(user, authData[1]))
+            if (!confirmPassword(user, password)) {
+                client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad Login or Password"));
+
                 throw new IllegalArgumentException("Wrong Login or Password");
+            }
+            JSONObject authResponse = new JSONObject(AUTH_RESPONSE);
+            authResponse.put("Body",new JSONObject().put("Nick",user.getNick()));
+
+            client.sendMessage(new AuthMessage(authResponse));
 
             openStream();
 
@@ -79,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
 
         } catch (JSONException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.STREAM));
+            client.sendMessage(new ErrorMessage(SubType.GET, MessageType.AUTH,"Bad JSON"));
             client.closeThread();
         }
 
@@ -89,7 +106,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean confirmPassword(User user, String sendedPassword) {
-        return getSHA256(user.getPassword()).equals(sendedPassword);
+        String hashPassword = getSHA256(user.getPassword());
+
+        return hashPassword.equals(sendedPassword);
     }
 
     private String getSHA256(String text) {
@@ -100,35 +119,39 @@ public class AuthServiceImpl implements AuthService {
             return new String(Hex.encode(hash));
         } catch (NoSuchAlgorithmException e) {
             logger.error(e.getMessage());
-            client.sendMessage(new ErrorMessage(ErrorType.AUTH_PROCESS));
+            client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad JSON"));
             client.closeThread();
             return "";
         }
     }
 
     private void openStream() {
-        String openResponse =
+         String openResponse=
                 "{" +
-                        "\"type\":\"StreamMessage\"," +
-                        "\"subType\":\"Response\"," +
-                        "\"body\":\"Accepted\"" +
+                        "\"Type\":\"Response\"," +
+                        "\"SubType\":\"Connect\"," +
+                        "\"MessageType\":\"Stream\"," +
+                        "\"Status\":\"OK\"" +
                         "}";
 
-        String openRequest =
+        String openRequest=
                 "{" +
-                        "\"type\":\"StreamMessage\"," +
-                        "\"subType\":\"Response\"," +
-                        "\"body\":\"Open\"" +
+                        "\"Type\":\"Request\"," +
+                        "\"SubType\":\"Connect\"," +
+                        "\"MessageType\":\"Stream\"" +
                         "}";
 
         String request =criptoServise.decrypt(client.takeData().getTextMessage());
 
         try {
             if (!request.equals(new JSONObject(openRequest).toString())) {
+                client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad Open Request"));
+
                 throw new IllegalArgumentException("Wrong Open Request");
             }
         } catch (JSONException e) {
             logger.error(e.getMessage());
+            client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad JSON"));
             throw new IllegalArgumentException("Wrong Json");
         }
 
