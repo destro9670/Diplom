@@ -1,15 +1,16 @@
-package services;
+package services.сonnection;
 
 
 import client.ClientThread;
 import criptography.CriptographyAlghorytm;
 import messages.ErrorMessage;
-import messages.ClientMessage;
+import messages.StreamMessage;
 import messages.enums.ErrorType;
 import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import services.сripto.CriptoServiseImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -51,7 +52,7 @@ public class StreamServiceImpl implements StreamService {
     @Override
     public void open() {
         if (isValidOpenRequestMessage())
-            client.sendMessage(new ClientMessage(OPEN_RESPONSE));
+            client.sendMessage(new StreamMessage(OPEN_RESPONSE));
         else
             throw new IllegalArgumentException("Wrong Open Request");
 
@@ -84,7 +85,7 @@ public class StreamServiceImpl implements StreamService {
             String randomText = generateRandomText();
             testMessage.put("body", criptoServise.encrypt(randomText));
 
-            client.sendMessage(new ClientMessage(testMessage));
+            client.sendMessage(new StreamMessage(testMessage));
             return isValidTestCriptoResponse(new JSONObject(client.takeData().getTextMessage()), randomText);
         } catch (JSONException e) {
             logger.error(e.getMessage());
@@ -151,7 +152,7 @@ public class StreamServiceImpl implements StreamService {
         try {
             if (!new JSONObject(OPEN_REQUEST).toString().equals(criptoServise.decrypt(client.takeData()).getTextMessage()))
                 throw new IllegalArgumentException("Wrong Open Request");
-            client.sendMessage(new ClientMessage(criptoServise.encrypt(OPEN_RESPONSE)));
+            client.sendMessage(new StreamMessage(criptoServise.encrypt(OPEN_RESPONSE)));
 
         } catch (JSONException e) {
             logger.error(e.getMessage());

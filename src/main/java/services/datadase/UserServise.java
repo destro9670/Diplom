@@ -1,4 +1,4 @@
-package services;
+package services.datadase;
 
 import db.dao.UserDAO;
 import db.dao.UserDAOImpl;
@@ -40,7 +40,7 @@ public class UserServise {
         return userDAO.findAllNoTakedMessage(user);
     }
 
-    List<User> findUserByLogin(String login){
+    public List<User> findUserByLogin(String login){
         return userDAO.findUserByLogin(login);
     }
 

@@ -4,19 +4,21 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/test_db</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5432/test_db?createDatabaseIfNotExist=true</property>
         <property name="connection.username">postgres</property>
         <property name="connection.password">qwerqwer</property>
-        <property name="hibernate.dialect">org.hibernate.dialect.ProgressDialect</property>
-        <property name="hibernate.jdbc.server_time_zone">UTC</property>
-        <property name="hibernate.characterEncoding">UTF-8</property>
-        <property name="show_sql">true</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
+        <property name="jdbc.server_time_zone">UTC</property>
+        <property name="characterEncoding">UTF-8</property>
 
-        <property name="hibernate.hbm2ddl.auto">create</property>
+        <!--property name="hbm2ddl.auto">create</property-->
 
 
         <mapping class="db.models.User"/>
         <mapping class="db.models.Message"/>
+        <mapping class="db.models.Room"/>
+        <mapping class="db.models.UserInRoom"/>
+
 
     </session-factory>
 </hibernate-configuration>

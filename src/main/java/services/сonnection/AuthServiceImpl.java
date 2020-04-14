@@ -1,15 +1,19 @@
-package services;
+package services.сonnection;
 
 import client.ClientThread;
 import criptography.CriptographyAlghorytm;
 import db.models.User;
+import messages.AuthMessage;
 import messages.ErrorMessage;
-import messages.ClientMessage;
 import messages.enums.ErrorType;
 import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import services.datadase.UserServise;
+import services.сripto.CriptoServise;
+import services.сripto.CriptoServiseImpl;
+import utiles.ClientHolderUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -37,8 +41,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void toAuthorize() {
-        client.sendMessage(new ClientMessage(criptoServise.encrypt(AUTH_REQUEST)));
+    public User toAuthorize() {
+        client.sendMessage(new AuthMessage(criptoServise.encrypt(AUTH_REQUEST)));
         try {
             JSONObject authResponse = new JSONObject(criptoServise.decrypt(client.takeData()).getTextMessage());
 
@@ -68,7 +72,9 @@ public class AuthServiceImpl implements AuthService {
 
             openStream();
 
-            ///TODO(1) create active user map(servise)
+            ClientHolderUtil.getInstance().addNewOnlineClient(user.getNick(),client);
+
+            return user;
 
 
         } catch (JSONException e) {
@@ -77,6 +83,8 @@ public class AuthServiceImpl implements AuthService {
             client.closeThread();
         }
 
+        //newer returned
+        return null;
 
     }
 
@@ -124,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Wrong Json");
         }
 
-        client.sendMessage(new ClientMessage(criptoServise.encrypt(openResponse)));
+        client.sendMessage(new AuthMessage(criptoServise.encrypt(openResponse)));
 
     }
 

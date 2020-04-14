@@ -1,4 +1,4 @@
-package services;
+package services.datadase;
 
 import db.dao.MessageDAO;
 import db.dao.MessageDAOImpl;

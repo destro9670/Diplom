@@ -4,18 +4,16 @@ import org.jboss.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ClientMessage implements Message {
-
-    private static final Logger logger = Logger.getLogger(ClientMessage.class);
-
+public class AuthMessage implements Message {
+    private static final Logger logger = Logger.getLogger(AuthMessage.class);
 
     private JSONObject jsonMessage;
 
     /*
-    *this method using for create system messages
-    * witch takes from client
+     *this method using for create system messages
+     * witch takes from client
      */
-    public ClientMessage(String jsonMessage) {
+    public AuthMessage(String jsonMessage) {
         try {
             this.jsonMessage = new JSONObject( jsonMessage);
         } catch (JSONException e) {
@@ -29,7 +27,7 @@ public class ClientMessage implements Message {
      *this method using for create system messages
      * witch sends to client
      */
-    public ClientMessage(JSONObject jsonMessage){
+    public AuthMessage (JSONObject jsonMessage){
         this.jsonMessage = jsonMessage;
     }
 
@@ -40,12 +38,7 @@ public class ClientMessage implements Message {
 
     @Override
     public String getBodyMessage() {
-        try {
-            return jsonMessage.getString("body");
-        } catch (JSONException e) {
-            logger.error(e.getMessage());
-            throw new IllegalArgumentException("Wrong Json");
-        }
+        return null;
     }
 
 }

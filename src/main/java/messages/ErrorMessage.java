@@ -43,4 +43,14 @@ public class ErrorMessage implements Message {
     public String getTextMessage() {
         return message.toString();
     }
+
+    @Override
+    public String getBodyMessage() {
+        try {
+            return message.getString("body");
+        } catch (JSONException e) {
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException("Wrong Json");
+        }
+    }
 }

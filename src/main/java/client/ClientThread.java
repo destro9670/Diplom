@@ -4,9 +4,9 @@ import messages.ErrorMessage;
 import messages.Message;
 import messages.ClientMessage;
 import messages.enums.ErrorType;
-import services.AuthServiceImpl;
-import services.AuthService;
-import services.StreamServiceImpl;
+import services.сonnection.AuthService;
+import services.сonnection.AuthServiceImpl;
+import services.сonnection.StreamServiceImpl;
 import org.jboss.logging.Logger;
 
 import java.io.DataInputStream;

@@ -6,16 +6,9 @@ import javax.persistence.*;
 @Table(name = "messages")
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "message_seq", sequenceName = "messages_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO,generator = "message_seq")
     private long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_from_id",nullable = false)
-    private User sender;
-
-    @ManyToOne
-    @JoinColumn(name = "user_to_id", nullable = false)
-    private User taker;
 
     @Column(name = "body", nullable = false)
     private String body;
@@ -29,6 +22,21 @@ public class Message {
     @Column(name = "send_date", nullable = false)
     private String sendDate;
 
+    @Column(name = "system")
+    private boolean system;
+
+    @ManyToOne
+    @JoinColumn(name = "user_from_id",nullable = false)
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "user_to_id", nullable = false)
+    private User taker;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id" , nullable = false)
+    private Room room;
+
     public Message() {
     }
 
@@ -37,7 +45,9 @@ public class Message {
                    String body,
                    boolean readStatus,
                    boolean sendStatus,
-                   String sendDate) {
+                   String sendDate,
+                   boolean system,
+                   Room room) {
 
         this.sender = sender;
         this.taker = taker;
@@ -45,6 +55,8 @@ public class Message {
         this.readStatus = readStatus;
         this.sendStatus = sendStatus;
         this.sendDate = sendDate;
+        this.room = room;
+        this.system = system;
     }
 
     public long getId() {
@@ -101,6 +113,22 @@ public class Message {
 
     public void setSendDate(String sendDate) {
         this.sendDate = sendDate;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @Override

@@ -1,13 +1,14 @@
 package db.models;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User  {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO,generator = "user_seq")
     private long id;
 
     @Column(name = "name", nullable = false)
@@ -35,10 +36,13 @@ public class User  {
     private String lastSeen;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
-    private Set<Message> sendedMessages;
+    private List<Message> sendedMessages;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id")
-    private Set<Message> takedMessages;
+    private List<Message> takedMessages;
+
+    @ManyToMany(mappedBy ="users")
+    private List<Room> rooms;
 
     public User() {
     }
@@ -51,6 +55,7 @@ public class User  {
                 String keyDate,
                 boolean active,
                 String lastSeen) {
+
         this.name = name;
         this.surname = surname;
         this.nick = nick;
@@ -101,7 +106,7 @@ public class User  {
         this.surname = surname;
     }
 
-    String getNick() {
+    public String getNick() {
         return nick;
     }
 
@@ -134,20 +139,29 @@ public class User  {
     }
 
 
-    public Set<Message> getSendedMessages() {
+    public List<Message> getSendedMessages() {
         return sendedMessages;
     }
 
-    public void setSendedMessages(Set<Message> sendedMessages) {
+    public void setSendedMessages(List<Message> sendedMessages) {
         this.sendedMessages = sendedMessages;
     }
 
-    public Set<Message> getTakedMessages() {
+    public List<Message> getTakedMessages() {
         return takedMessages;
     }
 
-    public void setTakedMessages(Set<Message> takedMessages) {
+    public void setTakedMessages(List<Message> takedMessages) {
         this.takedMessages = takedMessages;
+    }
+
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
 
     @Override

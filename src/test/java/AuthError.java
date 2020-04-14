@@ -6,8 +6,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import services.CriptoServise;
-import services.CriptoServiseImpl;
+import services.сripto.CriptoServise;
+import services.сripto.CriptoServiseImpl;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -19,11 +19,10 @@
       <ObjectId>24838</ObjectId>
       <StateNumber>637</StateNumber>
       <Owner>test</Owner>
-      <IntrospectionStateNumber>650</IntrospectionStateNumber>
+      <IntrospectionStateNumber>849</IntrospectionStateNumber>
       <Current>1</Current>
       <Visible>1</Visible>
-      <Relations>sequence|table|24866|24868|1
-sequence|table|24879|24881|1
+      <Relations>sequence|table|24866|24916|1
 </Relations>
     </database>
     <role id="5" parent="1" name="pg_execute_server_program">
@@ -181,15 +180,7 @@ sequence|table|24879|24881|1
       <SchemaName>pg_catalog</SchemaName>
       <SchemaId>11</SchemaId>
     </extension>
-    <sequence id="29" parent="20" name="messages_id_seq">
-      <ObjectId>24879</ObjectId>
-      <Owner>postgres</Owner>
-      <StateNumber>636</StateNumber>
-      <SequenceIdentity>1..2147483647</SequenceIdentity>
-      <CacheSize>1</CacheSize>
-      <DataType>integer</DataType>
-    </sequence>
-    <sequence id="30" parent="20" name="users_id_seq">
+    <sequence id="29" parent="20" name="users_id_seq">
       <ObjectId>24866</ObjectId>
       <Owner>postgres</Owner>
       <StateNumber>635</StateNumber>
