@@ -19,35 +19,39 @@ public class RoomServise {
     }
 
 
-    public Room findUserById(long id){
+    public Room findUserById(long id) {
         return roomDAO.findUserById(id);
     }
 
-    public List<Room> findRoomByUser(User user){
+    public List<Room> findRoomByUser(User user) {
         return roomDAO.findRoomByUser(user);
     }
 
-    public void save(Room room,User user1, User user2){
+    public void save(Room room, User user1, User user2) {
         roomDAO.save(room);
 
         UserInRoomDAO userInRoomDAO = new UserInRoomDAOImp();
 
-        userInRoomDAO.save(new UserInRoom(user1,room));
-        userInRoomDAO.save(new UserInRoom(user2,room));
+        userInRoomDAO.save(new UserInRoom(user1, room));
+        userInRoomDAO.save(new UserInRoom(user2, room));
 
 
     }
 
-    public void update(Room room){
+    public void update(Room room) {
         roomDAO.update(room);
     }
 
-    public void delete(Room room){
+    public void delete(Room room) {
         roomDAO.delete(room);
     }
 
-    public void insertUsersInRoom(Room room, User user1, User user2){
-        roomDAO.insertUsersInRoom(room,user1,user2);
+    public List<Room> findRoomByName(String name) {
+        return roomDAO.findRoomByName(name);
+    }
+
+    public void insertUsersInRoom(Room room, User user1, User user2) {
+        roomDAO.insertUsersInRoom(room, user1, user2);
     }
 
 }

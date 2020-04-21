@@ -7,5 +7,15 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/test_db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="hibernate.cfg.xml/Hibernate" uuid="07885cea-9990-492b-9488-3d7dd2de7a8a">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>Hibernate
+
+C:/Users/destr/OneDrive/Рабочий стол/диплом/блоки/V_4/Server_V_4_1/src/main/resources/hibernate.cfg.xml</remarks>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/test_db?createDatabaseIfNotExist=true</jdbc-url>
+    </data-source>
   </component>
 </project>

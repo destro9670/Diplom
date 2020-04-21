@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ua.dm.gabz</groupId>
-    <artifactId>Server</artifactId>
-    <version>1.0</version>
+    <artifactId>Mail Pigeon</artifactId>
+    <version>4.1</version>
     <build>
         <plugins>
             <plugin>
@@ -77,6 +77,13 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>6.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

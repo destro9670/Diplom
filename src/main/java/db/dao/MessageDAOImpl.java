@@ -1,6 +1,7 @@
 package db.dao;
 
 import db.models.Message;
+import db.models.Room;
 import db.models.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -86,4 +87,31 @@ public class MessageDAOImpl implements MessageDAO {
         return messages;
     }
 
+    @Override
+    public List<Message> findUnreadedMessageTaker(User user) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        String hql = "FROM Message WHERE taker = :user AND readStatus = false ";
+        Query query = session.createQuery(hql,Message.class);
+        query.setParameter("user", user);
+        List<Message> messages = query.list();
+        transaction.commit();
+        session.close();
+        return messages;
     }
+
+    @Override
+    public List<Message> findUnsendedMessageByTakerAndRoom(User user, Room room) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        String hql = "FROM Message WHERE taker = :user AND sendStatus = false AND room =: room";
+        Query query = session.createQuery(hql,Message.class);
+        query.setParameter("user", user);
+        query.setParameter("room", room);
+        List<Message> messages = query.list();
+        transaction.commit();
+        session.close();
+        return messages;
+    }
+
+}

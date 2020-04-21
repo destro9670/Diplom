@@ -1,7 +1,6 @@
 package services.сonnection;
 
 import client.ClientThread;
-import criptography.CriptographyAlghorytm;
 import db.models.User;
 import messages.AuthMessage;
 import messages.ErrorMessage;
@@ -12,10 +11,9 @@ import org.jboss.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.datadase.UserServise;
-import services.сripto.CriptoServise;
-import services.сripto.CriptoServiseImpl;
 import utiles.ClientHolderUtil;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +32,10 @@ public class AuthServiceImpl implements AuthService {
                     "}";
 
     private final ClientThread client;
-    private final CriptoServise criptoServise;
     private final UserServise userServise;
 
     public AuthServiceImpl(ClientThread client) {
         this.client = client;
-        criptoServise = new CriptoServiseImpl(CriptographyAlghorytm.STRUMOCK);
         userServise = new UserServise();
     }
 
@@ -48,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             JSONObject authRequest = new JSONObject(client.takeData().getTextMessage());
 
-            if (!(authRequest.getString("Type").equals("Response") &&
+            if (!(authRequest.getString("Type").equals("Request") &&
                     authRequest.getString("SubType").equals("Get") &&
                     authRequest.getString("MessageType").equals("Auth"))) {
 
@@ -61,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
             String login = authData.getString("Login");
             String password= authData.getString("Password");
+            logger.error( "Password: " + password + "\n" + "Login: " + login);
 
             List<User> users = userServise.findUserByLogin(login);
 
@@ -79,7 +76,6 @@ public class AuthServiceImpl implements AuthService {
 
             if (!confirmPassword(user, password)) {
                 client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad Login or Password"));
-
                 throw new IllegalArgumentException("Wrong Login or Password");
             }
             JSONObject authResponse = new JSONObject(AUTH_RESPONSE);
@@ -89,12 +85,20 @@ public class AuthServiceImpl implements AuthService {
 
             openStream();
 
+            if (ClientHolderUtil.getInstance().contains(user.getNick())){
+                ClientThread clientThread = ClientHolderUtil.getInstance().getOnlineClient(user.getNick());
+                ///client.sendMessage(new StreamMessage()); message for disconnect
+                clientThread.closeThread();
+                logger.error(user.getNick() + " try to sing in twice");
+                ///TODO(1) allert to admin
+            }
+
             ClientHolderUtil.getInstance().addNewOnlineClient(user.getNick(),client);
 
             return user;
 
 
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             logger.error(e.getMessage());
             client.sendMessage(new ErrorMessage(SubType.GET, MessageType.AUTH,"Bad JSON"));
             client.closeThread();
@@ -141,21 +145,23 @@ public class AuthServiceImpl implements AuthService {
                         "\"MessageType\":\"Stream\"" +
                         "}";
 
-        String request =criptoServise.decrypt(client.takeData().getTextMessage());
+
 
         try {
+            String request =client.takeData().getTextMessage();
+
             if (!request.equals(new JSONObject(openRequest).toString())) {
                 client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad Open Request"));
 
                 throw new IllegalArgumentException("Wrong Open Request");
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             logger.error(e.getMessage());
             client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad JSON"));
             throw new IllegalArgumentException("Wrong Json");
         }
 
-        client.sendMessage(new AuthMessage(criptoServise.encrypt(openResponse)));
+        client.sendMessage(new AuthMessage(openResponse));
 
     }
 

@@ -3,17 +3,17 @@ package connection;
 import org.jboss.logging.Logger;
 import client.ClientThread;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class ConnectionListener {
     private static final Logger logger = Logger.getLogger(ConnectionListener.class);
 
-    public void listen(ServerSocket ss) {
+    public void listen(SSLServerSocket ss) {
         while (true){
             try {
-                createClientThread(ss.accept());
+                createClientThread((SSLSocket)ss.accept());
                 logger.info("New Connection");
             } catch (IOException e) {
                 logger.error(e.getMessage());
@@ -24,7 +24,7 @@ public class ConnectionListener {
     }
 
 
-    private void createClientThread(Socket socket) {
+    private void createClientThread(SSLSocket socket) {
         ClientThread clientThread = null;
         try {
             clientThread = new ClientThread(socket);

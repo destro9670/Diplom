@@ -1,9 +1,6 @@
 package utiles;
 
-import db.models.Message;
-import db.models.Room;
-import db.models.User;
-import db.models.UserInRoom;
+import db.models.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -25,6 +22,7 @@ public class HibernateSessionFactoryUtil {
                 configuration.addAnnotatedClass(Message.class);
                 configuration.addAnnotatedClass(Room.class);
                 configuration.addAnnotatedClass(UserInRoom.class);
+                configuration.addAnnotatedClass(Content.class);
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());

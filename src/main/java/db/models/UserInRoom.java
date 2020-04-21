@@ -1,7 +1,10 @@
 package db.models;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name = "users_in_rooms")
 public class UserInRoom {
@@ -27,27 +30,5 @@ public class UserInRoom {
     public UserInRoom() {
     }
 
-    public long getId() {
-        return id;
-    }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
-    }
 }

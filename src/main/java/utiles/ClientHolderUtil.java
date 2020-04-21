@@ -1,7 +1,6 @@
 package utiles;
 
 import client.ClientThread;
-import db.models.User;
 import messages.ErrorMessage;
 import messages.enums.MessageType;
 import messages.enums.SubType;
@@ -14,10 +13,8 @@ public final class ClientHolderUtil {
     private static volatile ClientHolderUtil instance = null;
     private static final Logger log = Logger.getLogger(ClientHolderUtil.class);
     private HashMap<String, ClientThread> onlineClients;
-    private final UserServise userServise;
 
     private ClientHolderUtil(){
-        this.userServise = new UserServise();
         onlineClients = new HashMap<>();
     }
 
@@ -34,15 +31,12 @@ public final class ClientHolderUtil {
         return localInstance;
     }
 
-    public ClientThread getOnlineClient(String nickName){
-        return onlineClients.get(nickName);
+    public ClientThread getOnlineClient(String nickName) {
+        return onlineClients.getOrDefault(nickName, null);
     }
 
-    public boolean addNewOnlineClient(String nickName, ClientThread client){
-        if(onlineClients.get(nickName)==null){
-            User user = userServise.findUserByNick(nickName).get(0);
-            user.setActive(true);
-            userServise.update(user);
+    public synchronized boolean addNewOnlineClient(String nickName, ClientThread client){
+        if(!onlineClients.containsKey(nickName)){
             onlineClients.put(nickName,client);
             log.info("New Client added secess:" + nickName);
             return true;
@@ -53,16 +47,15 @@ public final class ClientHolderUtil {
         }
     }
 
-    public boolean containsClient(String nick){
+    public boolean contains(String nick){
         return onlineClients.containsKey(nick);
     }
 
     public void removeClient(String nickName){
-        User user = userServise.findUserByNick(nickName).get(0);
-        user.setActive(false);
-        userServise.update(user);
-        onlineClients.remove(nickName);
-        log.info(nickName + " deleted");
+        if(onlineClients.containsKey(nickName)) {
+            onlineClients.remove(nickName);
+            log.info(nickName + " deleted");
+        }
     }
 
 
