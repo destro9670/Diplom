@@ -25,4 +25,6 @@ public interface MessageDAO {
     List<Message> findUnreadedMessageTaker(User user);
 
     List<Message> findUnsendedMessageByTakerAndRoom(User user, Room room);
+
+    List<Message> findUnreadededMessageByTakerAndRoom(User user, Room room);
 }

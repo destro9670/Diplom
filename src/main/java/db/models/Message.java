@@ -53,7 +53,16 @@ public class Message {
         this.sendStatus = sendStatus;
         this.sendDate = sendDate;
         this.room = room;
+        this.taker = taker;
     }
 
-
+    @Override
+    public String toString() {
+        return "{" +
+                "\"From\":\"" + sender.getNick() + "\"," +
+                "\"To\":\"" + taker.getNick()+"\"," +
+                "\"Date\":" + "\""+sendDate + "\"," +
+                "\"Msg\":" + "\"" + content.getContent() + "\"," +
+                '}';
+    }
 }

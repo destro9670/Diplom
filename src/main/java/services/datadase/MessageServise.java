@@ -58,4 +58,8 @@ public class MessageServise {
     public List<Message> findUnsendedMessageByTakerAndRoom(User user, Room room) {
         return messageDAO.findUnsendedMessageByTakerAndRoom(user, room);
     }
+
+    public List<Message> findUnreadededMessageByTakerAndRoom(User user, Room room) {
+        return messageDAO.findUnreadededMessageByTakerAndRoom(user, room);
+    }
 }

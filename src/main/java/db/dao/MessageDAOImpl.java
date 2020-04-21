@@ -114,4 +114,18 @@ public class MessageDAOImpl implements MessageDAO {
         return messages;
     }
 
+    @Override
+    public List<Message> findUnreadededMessageByTakerAndRoom(User user, Room room) {
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        String hql = "FROM Message WHERE taker = :user AND readStatus = false AND room =: room";
+        Query query = session.createQuery(hql,Message.class);
+        query.setParameter("user", user);
+        query.setParameter("room", room);
+        List<Message> messages = query.list();
+        transaction.commit();
+        session.close();
+        return messages;
+    }
+
 }
