@@ -4,7 +4,7 @@ import db.models.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 
 public class HibernateSessionFactoryUtil {
 
@@ -27,7 +27,7 @@ public class HibernateSessionFactoryUtil {
                         .applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
             }catch (Exception e){
-                logger.error(e.getMessage());
+                logger.trace(e);
             }
         }
         return sessionFactory;

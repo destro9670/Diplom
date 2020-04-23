@@ -10,7 +10,7 @@ import messages.enums.MessageStatus;
 import messages.enums.MessageType;
 import messages.enums.SubType;
 import messages.SystemMessage;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.datadase.MessageServise;
@@ -21,14 +21,6 @@ import utiles.ClientHolderUtil;
 import java.util.List;
 
 public class MessageAnalyserService {
-
-    private static final String DISCONNECTED_USER_MESSAGE_HEADER =
-            "{" +
-                    "\"Type\":\"Info\"," +
-                    "\"SubType\":\"Post\",\n" +
-                    "\"MessageType\":\"Client\"" +
-                    "}";
-
 
     private final static Logger logger = Logger.getLogger(MessageAnalyserService.class);
     private final UserServise userServise;
@@ -53,7 +45,7 @@ public class MessageAnalyserService {
     public void analyze(Message message) throws JSONException {
 
         JSONObject msg = new JSONObject(message.getTextMessage());
-
+        logger.info(msg.toString());
         String type = msg.getString("Type");
         String subType = msg.getString("SubType");
         String messageType = msg.getString("MessageType");
@@ -81,19 +73,19 @@ public class MessageAnalyserService {
 
                             ClientHolderUtil.getInstance().getOnlineClient(sender.getNick()).setInRoom(body.getString("Room"));
 
-                            commutationService.sendSystemMessageToUser(sender, system, new ClientMessage(msg.put("Status", "OK")));
+                            commutationService.sendSystemMessageToUser(sender, system, new ClientMessage(msg.put("Status", "OK")),false);
                         }else{
-                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.POST,MessageType.ROOM,"Another Room is opened"));
+                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.POST,MessageType.ROOM,"Another Room is opened"),false);
                         }
                     }else if (action.equals("Out")) {
                         if(!ClientHolderUtil.getInstance().getOnlineClient(sender.getNick()).getInRoom().equals("NuN")) {
 
                             ClientHolderUtil.getInstance().getOnlineClient(sender.getNick()).setInRoom("NuN");
 
-                            commutationService.sendSystemMessageToUser(sender, system, new ClientMessage(msg.put("Status", "OK")));
+                            commutationService.sendSystemMessageToUser(sender, system, new ClientMessage(msg.put("Status", "OK")),false);
 
                         }else{
-                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.POST,MessageType.ROOM,"Another Room is opened"));
+                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.POST,MessageType.ROOM,"Another Room is opened"),false);
                         }
 
                     }
@@ -115,7 +107,7 @@ public class MessageAnalyserService {
                         if(rooms1.isEmpty())
                             rooms1 = roomServise.findRoomByName(taker.getNick()+"_"+sender.getNick());
                         if (rooms1.isEmpty()){
-                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.PUT,MessageType.MESSAGE,"NoSuchRoom"));
+                            commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.PUT,MessageType.MESSAGE,"NoSuchRoom"),false);
                         }
 
                         db.models.Message dbMessage = new db.models.Message(sender,taker,false,false,body.getString("Data"),rooms1.get(0));
@@ -125,7 +117,7 @@ public class MessageAnalyserService {
                         commutationService.sendClientMessageToUser(taker,dbMessage,content,false);
 
                     }else{
-                        commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.PUT,MessageType.MESSAGE,"NoSuchIntrlocutor"));
+                        commutationService.sendSystemMessageToUser(sender,system,new ErrorMessage(SubType.PUT,MessageType.MESSAGE,"NoSuchIntrlocutor"),false);
                     }
                     //13
                 }
@@ -152,7 +144,10 @@ public class MessageAnalyserService {
 
                                 JSONObject bodyResponse = new JSONObject().put("Action","Disconnected")
                                         .put("User",sender.getNick());
-                                Content content = new Content(new JSONObject(DISCONNECTED_USER_MESSAGE_HEADER).put("Body",bodyResponse).toString());
+                                Content content = new Content(new JSONObject().put("Type","Info")
+                                        .put("SubType","Post")
+                                        .put("MessageType","Client")
+                                        .put("Body",bodyResponse).toString());
                                 commutationService.sendClientMessageToUser(taker,dbMessage,content,false);
                             }
 
@@ -176,57 +171,61 @@ public class MessageAnalyserService {
 
 
     private void createRoom(JSONObject msg) throws JSONException {
+
+        logger.info(sender.getNick() + "try to create room");
         //get users Nick
         String strCreator = msg.getJSONObject("Body")
                 .getString("Creator");
 
         String strInterlocutor = msg.getJSONObject("Body")
-                .getString("Creator");
+                .getString("Interlocutor");
 
         ///get Users Obj from datadase
+        logger.info(msg.toString());
         User  creator = userServise.findUserByNick(strCreator).get(0);
         User  interlocutor = userServise.findUserByNick(strInterlocutor).get(0);
         if(creator == null || interlocutor == null) {
             commutationService.sendSystemMessageToUser(sender,system,
-                    new ErrorMessage(SubType.PUT, MessageType.ROOM,"No Such Intrlocutor"));
+                    new ErrorMessage(SubType.PUT, MessageType.ROOM,"No Such Intrlocutor"),false);
         }
 
         //check if created room exist
-        Room room1 = roomServise.findRoomByName(strCreator + "_" + strInterlocutor).get(0);
-        Room room2 = roomServise.findRoomByName(strInterlocutor+ "_" + strCreator).get(0);
-        if(room1 != null || room2 != null) {
+        boolean room1 = roomServise.findRoomByName(strCreator + "_" + strInterlocutor).isEmpty();
+        boolean room2 = roomServise.findRoomByName(strInterlocutor+ "_" + strCreator).isEmpty();
+        if(!room1 || !room2) {
             commutationService.sendSystemMessageToUser(sender,system,
-                    new ErrorMessage(SubType.PUT, MessageType.ROOM,"Current Room Already Exist"));
+                    new ErrorMessage(SubType.PUT, MessageType.ROOM,"Current Room Already Exist"),false);
+        }else {
+
+            //create room
+            Room room = new Room(strCreator + "_" + strInterlocutor);
+
+            roomServise.save(room, creator, interlocutor);
+
+            //info sender of success
+            commutationService.sendSystemMessageToUser(sender, system,
+                    new SystemMessage(SubType.PUT, MessageType.ROOM, MessageStatus.OK,
+                            new JSONObject().put("Creator", strCreator)
+                                    .put("Interlocutor", strInterlocutor)),false);
+            //sending info of creating room for interlocutor
+            JSONObject interlocutorStatusInfo = new JSONObject().put("User", strInterlocutor);
+
+            if (ClientHolderUtil.getInstance().contains(interlocutor.getNick())) {
+                interlocutorStatusInfo.put("UserStatus", "Online");
+            } else {
+                interlocutorStatusInfo.put("UserStatus", "Ofline");
+                interlocutorStatusInfo.put("LastSeen", interlocutor.getLastSeen());
+            }
+
+            commutationService.sendSystemMessageToUser(sender, system,
+                    new SystemMessage(SubType.POST, MessageType.CLIENT, MessageStatus.NULL,
+                            interlocutorStatusInfo),false);
+
+            commutationService.sendSystemMessageToUser(interlocutor, creator,
+                    new SystemMessage(SubType.PUT, MessageType.ROOM, MessageStatus.OK,
+                            new JSONObject().put("Creator", strCreator)
+                                    .put("Interlocutor", strInterlocutor)),false);
         }
-
-        //create room
-        Room room = new Room(strCreator + "_" + strInterlocutor);
-
-        roomServise.save(room,creator,interlocutor);
-
-        //info sender of success
-        commutationService.sendSystemMessageToUser(sender,system,
-                new SystemMessage(SubType.PUT,MessageType.ROOM, MessageStatus.OK,
-                        new JSONObject().put("Creator",strCreator)
-                                .put("Interlocutor",strInterlocutor)));
-        //sending info of creating room for interlocutor
-        JSONObject interlocutorStatusInfo = new JSONObject().put("User",strInterlocutor);
-
-        if(ClientHolderUtil.getInstance().contains(interlocutor.getNick())){
-            interlocutorStatusInfo.put("UserStatus","Online");
-        }else{
-            interlocutorStatusInfo.put("UserStatus","Ofline");
-            interlocutorStatusInfo.put("LastSeen",interlocutor.getLastSeen());
-        }
-
-        commutationService.sendSystemMessageToUser(sender,system,
-                new SystemMessage(SubType.POST,MessageType.CLIENT,MessageStatus.NULL,
-                        interlocutorStatusInfo));
-
-        commutationService.sendSystemMessageToUser(interlocutor,creator,
-                new SystemMessage(SubType.PUT,MessageType.ROOM,MessageStatus.OK,
-                        new JSONObject().put("Creator",strCreator)
-                                .put("Interlocutor",strInterlocutor)));
     }
 
     public void sendUnsendedMessages() {

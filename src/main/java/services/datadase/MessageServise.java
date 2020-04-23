@@ -28,6 +28,7 @@ public class MessageServise {
 
     public void save(Message message, Content content) {
         contentDAO.save(content);
+        message.setContent(content);
         messageDAO.save(message);
     }
 

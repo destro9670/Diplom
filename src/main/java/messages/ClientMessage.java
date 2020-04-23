@@ -1,6 +1,6 @@
 package messages;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,7 +19,7 @@ public class ClientMessage implements Message {
         try {
             this.jsonMessage = new JSONObject( jsonMessage);
         } catch (JSONException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             throw new IllegalArgumentException("Wrong Json");
         }
     }
@@ -43,7 +43,7 @@ public class ClientMessage implements Message {
         try {
             return jsonMessage.getString("body");
         } catch (JSONException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             throw new IllegalArgumentException("Wrong Json");
         }
     }

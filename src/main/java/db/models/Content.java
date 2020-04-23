@@ -21,4 +21,7 @@ public class Content {
     public Content(String content) {
         this.content = content;
     }
+
+    public Content() {
+    }
 }

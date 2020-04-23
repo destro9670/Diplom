@@ -6,7 +6,7 @@ import db.models.Room;
 import db.models.User;
 import messages.ClientMessage;
 import messages.Message;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.datadase.MessageServise;
@@ -27,30 +27,27 @@ class CommutationService {
 
     }
 
-    void sendSystemMessageToUser(User taker, User sender, Message message) {
-        try {
-            ClientThread takerThread = ClientHolderUtil.getInstance().getOnlineClient(taker.getNick());
-            Room room = roomServise.findRoomByName("system_" + taker.getNick()).get(0);
+    void sendSystemMessageToUser(User taker, User sender, Message message,boolean isSaved) {
+        ClientThread takerThread = ClientHolderUtil.getInstance().getOnlineClient(taker.getNick());
+        Room room = roomServise.findRoomByName("system_" + taker.getNick()).get(0);
 
-            db.models.Message msg = new db.models.Message(sender, taker, false, false, " ", room);
+        Content content = new Content(message.getTextMessage());
 
-            JSONObject jsonMsg = new JSONObject(message.getTextMessage());
 
-            Content content = new Content(jsonMsg.toString());
+        db.models.Message msg = new db.models.Message(sender, taker, false, false, " ", room);
 
+        if(!isSaved) {
             messageServise.save(msg, content);
+            logger.info("new Message saved");
+        }
+        if (takerThread != null) {
 
-            if (takerThread != null) {
+            takerThread.sendMessage(message);
 
-                takerThread.sendMessage(message);
+            msg.setReadStatus(true);
+            msg.setSendStatus(true);
+            messageServise.update(msg);
 
-                msg.setReadStatus(true);
-                msg.setSendStatus(true);
-                messageServise.update(msg);
-
-            }
-        } catch (JSONException e) {
-            logger.error(e.getMessage());
         }
 
 
@@ -60,16 +57,17 @@ class CommutationService {
 
         ClientThread takerThread = ClientHolderUtil.getInstance().getOnlineClient(taker.getNick());
 
-        if (!saved)
+        if (!saved) {
             messageServise.save(message, content);
-
+            logger.info("new Message saved");
+        }
         if (takerThread != null) {
             try {
                 JSONObject body = new JSONObject(message.toString());
-                JSONObject msg = new JSONObject().put("Type","Request")
-                        .put("SubType","Put")
-                        .put("MessageType","Message")
-                        .put("Body",body);
+                JSONObject msg = new JSONObject().put("Type", "Request")
+                        .put("SubType", "Put")
+                        .put("MessageType", "Message")
+                        .put("Body", body);
                 Message clientMessage = new ClientMessage(msg.toString());
 
                 takerThread.sendMessage(clientMessage);
@@ -80,7 +78,7 @@ class CommutationService {
 
 
             } catch (JSONException e) {
-               logger.error( e.getMessage());
+                logger.trace(e);
             }
         }
 

@@ -1,6 +1,6 @@
 package connection;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import client.ClientThread;
 
 import javax.net.ssl.SSLServerSocket;
@@ -16,7 +16,7 @@ public class ConnectionListener {
                 createClientThread((SSLSocket)ss.accept());
                 logger.info("New Connection");
             } catch (IOException e) {
-                logger.error(e.getMessage());
+                logger.trace(e);
             }
         }
 
@@ -29,8 +29,9 @@ public class ConnectionListener {
         try {
             clientThread = new ClientThread(socket);
             new Thread(clientThread).start();
+            logger.info("Start client initialization");
         } catch (Exception e) {
-            logger.error(e);
+            logger.trace(e);
 
             if(clientThread != null)
                 clientThread.closeThread();

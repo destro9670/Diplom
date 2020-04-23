@@ -7,7 +7,7 @@ import messages.ErrorMessage;
 import messages.enums.MessageType;
 import messages.enums.SubType;
 import org.bouncycastle.util.encoders.Hex;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.datadase.UserServise;
@@ -57,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
 
             String login = authData.getString("Login");
             String password= authData.getString("Password");
-            logger.error( "Password: " + password + "\n" + "Login: " + login);
 
             List<User> users = userServise.findUserByLogin(login);
 
@@ -99,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         } catch (JSONException | IOException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             client.sendMessage(new ErrorMessage(SubType.GET, MessageType.AUTH,"Bad JSON"));
             client.closeThread();
         }
@@ -122,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
                     text.getBytes(StandardCharsets.UTF_8));
             return new String(Hex.encode(hash));
         } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             client.sendMessage(new ErrorMessage(SubType.GET,MessageType.AUTH,"Bad JSON"));
             client.closeThread();
             return "";
@@ -156,7 +155,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new IllegalArgumentException("Wrong Open Request");
             }
         } catch (JSONException | IOException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             client.sendMessage(new ErrorMessage(SubType.CONNECT,MessageType.STREAM,"Bad JSON"));
             throw new IllegalArgumentException("Wrong Json");
         }

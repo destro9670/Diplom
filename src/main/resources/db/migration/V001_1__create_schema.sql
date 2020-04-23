@@ -1,6 +1,6 @@
 create sequence user_id_seq
   increment 1
-  start 1
+  start 6
   no cycle;
   
 create table users(
@@ -15,7 +15,7 @@ create table users(
 
 create sequence room_id_seq
   increment 1
-  start 1
+  start 5
   no cycle;
 
 create table rooms(
@@ -25,7 +25,7 @@ create table rooms(
 
 create sequence users_in_rooms_id_seq
   increment 1
-  start 1
+  start 5
   no cycle;
 
 create table users_in_rooms(

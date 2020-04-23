@@ -1,7 +1,6 @@
 import connection.ConnectionListener;
 import org.flywaydb.core.Flyway;
-import org.jboss.logging.Logger;
-
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
@@ -15,13 +14,14 @@ public class ServerStarter {
 
     ///TODO(1) normal console control
     public static void main(String[] args) {
-       // migrate();
+        migrate();
+        logger.info("Migration complete success");
         try {
             int port = 5222;
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(new FileInputStream("C:\\Users\\destr\\OneDrive\\Рабочий стол\\диплом\\блоки\\V_4\\Server_V_4_1\\src\\main\\resources\\keystore\\pigeon_server.ks"),
                     "server".toCharArray());
-            logger.info("Incoming Connection\r\n");
+            logger.info("Incoming Connection");
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
                     .getDefaultAlgorithm());
@@ -30,7 +30,7 @@ public class ServerStarter {
 
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
             tmf.init(keystore);
-            logger.info("KeyStore Stored\r\n");
+            logger.info("KeyStore Stored");
             TrustManager[] trustManagers = tmf.getTrustManagers();
 
             SSLContext context = SSLContext.getInstance("TLS");
@@ -43,7 +43,7 @@ public class ServerStarter {
             ConnectionListener listener = new ConnectionListener();
             listener.listen(sslServerSocket);
         } catch (IOException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
         }
     }
 

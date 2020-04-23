@@ -5,20 +5,34 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ua.dm.gabz</groupId>
-    <artifactId>Mail Pigeon</artifactId>
+    <artifactId>pigeon</artifactId>
     <version>4.1</version>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <archive>
+                        <manifest>
+                            <mainClass>ServerStarter</mainClass>mvn clean compile assembly:single
+
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
 
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -34,7 +48,6 @@
             <artifactId>hibernate-core</artifactId>
             <version>5.3.16.Final</version>
         </dependency>
-
 
         <dependency>
             <groupId>postgresql</groupId>
@@ -62,15 +75,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.8.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.8.2</version>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
         </dependency>
 
         <dependency>

@@ -58,11 +58,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return "{" +
-                "\"From\":\"" + sender.getNick() + "\"," +
-                "\"To\":\"" + taker.getNick()+"\"," +
-                "\"Date\":" + "\""+sendDate + "\"," +
-                "\"Msg\":" + "\"" + content.getContent() + "\"," +
-                '}';
+        return content.getContent();
     }
 }

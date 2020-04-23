@@ -8,13 +8,14 @@ import services.communication.MessageAnalyserService;
 import services.сonnection.AuthService;
 import services.сonnection.AuthServiceImpl;
 import services.сonnection.StreamServiceImpl;
-import org.jboss.logging.Logger;
 import utiles.ClientHolderUtil;
 
 import javax.net.ssl.SSLSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 public class ClientThread implements Runnable {
 
@@ -27,12 +28,12 @@ public class ClientThread implements Runnable {
     private StreamServiceImpl stream;
     private User user;
     private MessageAnalyserService analyserService;
-    private String inRoom;
+    private String inRoom = "NuN";
 
     public ClientThread(SSLSocket socket) throws IOException {
         socket.startHandshake();
         socket.setKeepAlive(true);
-        socket.setSoTimeout(2*60*60*1000);
+        socket.setSoTimeout(2 * 60 * 60 * 1000);
         this.socket = socket;
 
         this.dos = new DataOutputStream(socket.getOutputStream());
@@ -44,28 +45,33 @@ public class ClientThread implements Runnable {
 
     @Override
     public void run() {
-        logger.info("New connection accepted ");
-
-
         try {
             stream.open();
+            logger.info("Open Stream success");
+
             user = authService.toAuthorize();
+            logger.info(user.getNick() + " login success");
+
             analyserService = new MessageAnalyserService(user);
+            logger.info("Start sending not receiving  messages");
 
             analyserService.sendUnsendedMessages();
 
-            while (Thread.currentThread().isInterrupted()){
+            logger.info("Start working with client");
 
+            while (!Thread.currentThread().isInterrupted()) {
+                analyserService.analyze(takeData());
 
-            analyserService.analyze(takeData());
             }
 
+            logger.info(user.getNick() + "disconnected");
 
-        }catch (IllegalArgumentException | IOException | JSONException e){
-            logger.error(e.getMessage());
+        } catch (IllegalArgumentException | IOException | JSONException e) {
+            logger.trace(e);
             closeThread();
-        }catch (NullPointerException e){
-            logger.error("Client Disconnected");
+        } catch (NullPointerException e) {
+            logger.info("Client Disconnected");
+            logger.trace(e);
             closeThread();
         }
     }
@@ -78,14 +84,14 @@ public class ClientThread implements Runnable {
             dis.close();
             socket.close();
             Thread.currentThread().interrupt();
-        } catch (Exception e1) {
-            logger.error(e1.getMessage());
+        } catch (Exception e) {
+            logger.trace(e);
         }
     }
 
 
-    public void closeThread(){
-            close();
+    public void closeThread() {
+        close();
     }
 
     public synchronized void sendMessage(Message msg) {
@@ -95,7 +101,7 @@ public class ClientThread implements Runnable {
 
         } catch (IOException e) {
 
-            logger.error(e.getMessage());
+            logger.trace(e);
             closeThread();
         }
 

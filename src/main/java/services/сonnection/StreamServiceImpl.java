@@ -6,7 +6,7 @@ import messages.ErrorMessage;
 import messages.StreamMessage;
 import messages.enums.MessageType;
 import messages.enums.SubType;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,7 +50,7 @@ public class StreamServiceImpl implements StreamService {
                     && request.getString("MessageType").equals("Stream");
 
         } catch (IllegalArgumentException | JSONException | IOException e) {
-            logger.error(e.getMessage());
+            logger.trace(e);
             client.sendMessage(new ErrorMessage(SubType.CONNECT, MessageType.STREAM,"Bad JSON"));
             client.closeThread();
         }
