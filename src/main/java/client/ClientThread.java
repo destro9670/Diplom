@@ -99,7 +99,7 @@ public class ClientThread implements Runnable {
         try {
             dos.writeUTF(msg.getTextMessage());
             if(user != null)
-                System.out.println("sended by " + user.getNick() + ": "+msg.getTextMessage());
+                logger.info("sended by " + user.getNick() + ": "+msg.getTextMessage());
 
         } catch (IOException e) {
 
@@ -112,7 +112,7 @@ public class ClientThread implements Runnable {
     public Message takeData() throws IOException {
         String data = dis.readUTF();
         if(user!= null)
-            System.out.println("taked by " + user.getNick() + ": " + data);
+            logger.info("taked by " + user.getNick() + ": " + data);
         return new ClientMessage(data);
     }
 

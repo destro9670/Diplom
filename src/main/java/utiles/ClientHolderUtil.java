@@ -33,7 +33,7 @@ public final class ClientHolderUtil {
 
     public ClientThread getOnlineClient(String nickName) {
 
-        System.out.println("user " + nickName + ": " + onlineClients.containsKey(nickName));
+        log.info("user " + nickName + ": " + onlineClients.containsKey(nickName));
         return onlineClients.getOrDefault(nickName, null);
     }
 
