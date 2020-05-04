@@ -78,7 +78,7 @@ public class MessageDAOImpl implements MessageDAO {
     public List<Message> findUnsendedMessageTaker(User user) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
-        String hql = "FROM Message WHERE taker = :user AND sendStatus = false ";
+        String hql = "FROM Message WHERE (taker = :user AND sendStatus = false) ";
         Query query = session.createQuery(hql,Message.class);
         query.setParameter("user", user);
         List<Message> messages = query.list();

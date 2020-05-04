@@ -23,23 +23,9 @@ public class StreamMessage implements Message {
             }
         }
 
-
-        /*
-         *this method using for create system messages
-         * witch sends to client
-         */
-        public StreamMessage (JSONObject jsonMessage){
-            this.jsonMessage = jsonMessage;
-        }
-
         @Override
         public String getTextMessage() {
             return jsonMessage.toString();
-        }
-
-        @Override
-        public String getBodyMessage() {
-            return null;
         }
 
     }

@@ -1,10 +1,7 @@
 package services.datadase;
 
-import db.dao.ContentDAO;
-import db.dao.ContentDAOImpl;
 import db.dao.MessageDAO;
 import db.dao.MessageDAOImpl;
-import db.models.Content;
 import db.models.Message;
 import db.models.Room;
 import db.models.User;
@@ -14,10 +11,8 @@ import java.util.List;
 public class MessageServise {
 
     private final MessageDAO messageDAO;
-    private final ContentDAO contentDAO;
 
     public MessageServise() {
-        this.contentDAO = new ContentDAOImpl();
         this.messageDAO = new MessageDAOImpl();
     }
 
@@ -26,14 +21,14 @@ public class MessageServise {
         return messageDAO.findMessageById(id);
     }
 
-    public void save(Message message, Content content) {
-        contentDAO.save(content);
-        message.setContent(content);
+    public void save(Message message) {
+        if(message.getContent().isEmpty())
+            throw new Error();
         messageDAO.save(message);
     }
 
     public void update(Message message) {
-        messageDAO.save(message);
+        messageDAO.update(message);
     }
 
     public void delete(Message message) {

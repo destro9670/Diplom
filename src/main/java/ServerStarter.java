@@ -19,7 +19,7 @@ public class ServerStarter {
         try {
             int port = 5222;
             KeyStore keystore = KeyStore.getInstance("JKS");
-            keystore.load(new FileInputStream("C:\\Users\\destr\\OneDrive\\Рабочий стол\\диплом\\блоки\\V_4\\Server_V_4_1\\src\\main\\resources\\keystore\\pigeon_server.ks"),
+            keystore.load(new FileInputStream("/home/mailPigeon/workspase/keystore/pigeon_server.ks"),
                     "server".toCharArray());
             logger.info("Incoming Connection");
 
@@ -48,8 +48,8 @@ public class ServerStarter {
     }
 
     private static void migrate() {
-        Flyway flyway = Flyway.configure().dataSource("jdbc:postgresql://localhost:5432/test_db",
-                "postgres", "qwerqwer").load();
+        Flyway flyway = Flyway.configure().dataSource("jdbc:postgresql://localhost:5432/mailpigeon",
+                "mailpigeon", "qwerqwer").load();
         flyway.migrate();
     }
 

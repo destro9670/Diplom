@@ -14,7 +14,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ServerStarter</mainClass>mvn clean compile assembly:single
+                            <mainClass>ServerStarter</mainClass>
 
                         </manifest>
                     </archive>

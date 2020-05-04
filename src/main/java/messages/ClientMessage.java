@@ -38,14 +38,6 @@ public class ClientMessage implements Message {
         return jsonMessage.toString();
     }
 
-    @Override
-    public String getBodyMessage() {
-        try {
-            return jsonMessage.getString("body");
-        } catch (JSONException e) {
-            logger.trace(e);
-            throw new IllegalArgumentException("Wrong Json");
-        }
-    }
+
 
 }

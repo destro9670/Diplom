@@ -22,9 +22,8 @@ public class Message {
     @Column(name = "send_date", nullable = false)
     private String sendDate;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
-    private Content content;
+    @Column(name = "content")
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "user_from_id",nullable = false)
@@ -56,8 +55,25 @@ public class Message {
         this.taker = taker;
     }
 
+    public Message(User sender,
+                   User taker,
+                   String content,
+                   boolean readStatus,
+                   boolean sendStatus,
+                   String sendDate,
+                   Room room) {
+
+        this.content = content;
+        this.sender = sender;
+        this.readStatus = readStatus;
+        this.sendStatus = sendStatus;
+        this.sendDate = sendDate;
+        this.room = room;
+        this.taker = taker;
+    }
+
     @Override
     public String toString() {
-        return content.getContent();
+        return content;
     }
 }

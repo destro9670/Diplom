@@ -34,16 +34,6 @@ create table users_in_rooms(
   room_id bigint references rooms(id)
 );
 
-create sequence contents_id_seq
-  increment 1
-  start 1
-  no cycle;
-
-create table contents(
-  id bigint primary key default nextval('contents_id_seq'),
-  content text not null
-);
-
 create sequence messages_id_seq
   increment 1
   start 1
@@ -54,7 +44,7 @@ create table messages(
   user_from_id bigint references users(id),
   user_to_id bigint references users(id),
   room_id bigint references rooms(id),
-  content_id bigint references contents(id),
+  content text,
   read_status boolean not null,
   send_status boolean not null,
   send_date varchar(20) not null

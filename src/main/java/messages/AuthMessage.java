@@ -36,9 +36,4 @@ public class AuthMessage implements Message {
         return jsonMessage.toString();
     }
 
-    @Override
-    public String getBodyMessage() {
-        return null;
-    }
-
 }

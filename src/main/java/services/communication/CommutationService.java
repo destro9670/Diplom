@@ -1,7 +1,6 @@
 package services.communication;
 
 import client.ClientThread;
-import db.models.Content;
 import db.models.Room;
 import db.models.User;
 import messages.ClientMessage;
@@ -11,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import services.datadase.MessageServise;
 import services.datadase.RoomServise;
-import services.datadase.UserServise;
 import utiles.ClientHolderUtil;
 
 class CommutationService {
@@ -31,13 +29,12 @@ class CommutationService {
         ClientThread takerThread = ClientHolderUtil.getInstance().getOnlineClient(taker.getNick());
         Room room = roomServise.findRoomByName("system_" + taker.getNick()).get(0);
 
-        Content content = new Content(message.getTextMessage());
 
 
-        db.models.Message msg = new db.models.Message(sender, taker, false, false, " ", room);
+        db.models.Message msg = new db.models.Message(sender, taker,message.getTextMessage(), false, false, " ", room);
 
         if(!isSaved) {
-            messageServise.save(msg, content);
+            messageServise.save(msg);
             logger.info("new Message saved");
         }
         if (takerThread != null) {
@@ -53,21 +50,18 @@ class CommutationService {
 
     }
 
-    void sendClientMessageToUser(User taker, db.models.Message message, Content content, boolean saved) {
+    void sendClientMessageToUser(User taker, db.models.Message message, boolean saved) {
 
         ClientThread takerThread = ClientHolderUtil.getInstance().getOnlineClient(taker.getNick());
 
         if (!saved) {
-            messageServise.save(message, content);
+            messageServise.save(message);
             logger.info("new Message saved");
         }
         if (takerThread != null) {
             try {
                 JSONObject body = new JSONObject(message.toString());
-                JSONObject msg = new JSONObject().put("Type", "Request")
-                        .put("SubType", "Put")
-                        .put("MessageType", "Message")
-                        .put("Body", body);
+                JSONObject msg = body;
                 Message clientMessage = new ClientMessage(msg.toString());
 
                 takerThread.sendMessage(clientMessage);
@@ -83,6 +77,7 @@ class CommutationService {
         }
 
     }
+
 
 
 }
