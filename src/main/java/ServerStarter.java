@@ -17,7 +17,8 @@ public class ServerStarter {
         migrate();
         logger.info("Migration complete success");
         try {
-            int port = 5222;
+            int port = 80
+;
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(new FileInputStream("/home/mailPigeon/workspase/keystore/pigeon_server.ks"),
                     "server".toCharArray());
